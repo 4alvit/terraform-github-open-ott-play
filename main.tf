@@ -106,39 +106,9 @@ resource "github_repository_dependabot_security_updates" "ottplay_foss" {
   enabled    = true
 }
 
-resource "github_repository" "terraform_github_open_ott_play" {
-  name        = "terraform-github-open-ott-play"
-  description = "Terraform IaC for open-ott-play GitHub organization infrastructure"
-  visibility  = "public"
-
-  has_issues      = true
-  has_projects    = true
-  has_wiki        = true
-  has_discussions = false
-
-  allow_merge_commit     = true
-  allow_squash_merge     = true
-  allow_rebase_merge     = true
-  allow_auto_merge       = true
-  delete_branch_on_merge = true
-
-  topics = [
-    "github", "hcp-terraform", "iac", "infrastructure-as-code",
-    "terraform", "open-ott-play"
-  ]
-
-  license_template = "mit"
-}
-
-resource "github_repository_vulnerability_alerts" "terraform_github_open_ott_play" {
-  repository = github_repository.terraform_github_open_ott_play.name
-  depends_on = [github_repository.terraform_github_open_ott_play]
-}
-
-resource "github_repository_dependabot_security_updates" "terraform_github_open_ott_play" {
-  repository = github_repository.terraform_github_open_ott_play.id
-  enabled    = true
-}
+# terraform-github-open-ott-play lives under the 4alvit personal account
+# (transferred out of the org) — managed outside this module.
+# (State entries for it were dropped during the transfer migration.)
 
 # =============================================================================
 # Branch Protection Rulesets
@@ -148,7 +118,6 @@ locals {
   protected_repos = [
     "open-ott-play",
     "ottplay-foss",
-    "terraform-github-open-ott-play",
   ]
 }
 

@@ -11,11 +11,6 @@ output "repositories" {
       html_url = github_repository.ottplay_foss.html_url
       ssh_url  = github_repository.ottplay_foss.ssh_clone_url
     }
-    terraform_github_open_ott_play = {
-      name     = github_repository.terraform_github_open_ott_play.name
-      html_url = github_repository.terraform_github_open_ott_play.html_url
-      ssh_url  = github_repository.terraform_github_open_ott_play.ssh_clone_url
-    }
   }
 }
 
