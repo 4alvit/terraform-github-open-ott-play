@@ -144,10 +144,6 @@ resource "github_repository_dependabot_security_updates" "terraform_github_open_
 # Branch Protection Rulesets
 # =============================================================================
 
-data "github_app" "gitar" {
-  slug = "gitar-bot"
-}
-
 locals {
   protected_repos = [
     "open-ott-play",
@@ -168,14 +164,6 @@ resource "github_repository_ruleset" "default" {
     actor_type  = "RepositoryRole"
     bypass_mode = "always"
   }
-
-  # NOTE: re-enable after installing the gitar-bot GitHub App on this org:
-  # https://github.com/apps/gitar-bot/installations/new
-  # bypass_actors {
-  #   actor_id    = data.github_app.gitar.id
-  #   actor_type  = "Integration"
-  #   bypass_mode = "always"
-  # }
 
   conditions {
     ref_name {
