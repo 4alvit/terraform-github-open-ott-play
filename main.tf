@@ -44,8 +44,8 @@ provider "github" {
 # =============================================================================
 
 resource "github_repository" "profile" {
-  name        = "open-ott-play"
-  description = "Open-source IPTV/OTT player for set-top boxes — organization profile"
+  name        = ".github"
+  description = "Organization profile, community health files, and logo assets"
   visibility  = "public"
 
   has_issues      = false
@@ -116,7 +116,7 @@ resource "github_repository_dependabot_security_updates" "ottplay_foss" {
 
 locals {
   protected_repos = [
-    "open-ott-play",
+    ".github",
     "ottplay-foss",
   ]
 }
