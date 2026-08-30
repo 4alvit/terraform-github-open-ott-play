@@ -12,6 +12,6 @@ permissions:
 jobs:
   ci:
     name: Terraform CI
-    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/terraform-ci.yml@90fae60a049bbd1a55ac218c379f36cb101299f1
+    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/terraform-ci.yml@914ef58bbb7c711648d76b15af2c3c14db63771f
     with:
       working-directory: '.'
