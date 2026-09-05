@@ -13,7 +13,7 @@ Remote state in Terraform Cloud (free tier):
 
 ## Required Variables
 
-Set these in Terraform Cloud workspace variables:
+Set these in Terraform Cloud workspace variables (not in git):
 
 | Variable | Description | Sensitive |
 |----------|-------------|-----------|
@@ -21,13 +21,17 @@ Set these in Terraform Cloud workspace variables:
 | `github_organization` | GitHub org name (default: `open-ott-play`) | No |
 | `billing_email` | Organization billing email | Yes |
 
+**Do not** put Cloudflare account IDs, API tokens, Worker URLs, or KV namespace IDs in this module. Those belong in the `ottplay-swop` app repo Wrangler config (local / CI secrets only).
+
 ## Managed Resources
 
 ### Repositories
 
-- `open-ott-play` — organization profile repo
+- `.github` — organization profile repo
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
-- `terraform-github-open-ott-play` — this Terraform module
+- `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
+
+`terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
 ### Security (per repository)
 
@@ -36,18 +40,18 @@ Set these in Terraform Cloud workspace variables:
 
 ### Branch Protection Rulesets
 
-Default ruleset on every repository default branch:
+Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 
-- Deletion and force-push protection, required commit signatures
-- Required PR: 1 approval, code owner review, last-push approval, thread resolution
-- Copilot code review on push and drafts
-- CodeQL required (errors / high-or-higher)
-- Bypass: repository admin (id 5) and `gitar-bot` app, always
+| Repo | Highlights |
+|------|------------|
+| `.github` | Signatures, PR reviews, CodeQL `errors` / `high_or_higher` |
+| `ottplay-foss` | Signatures, PR reviews, CodeQL `none` / `none`, **required checks**: Lint, Typecheck, Build, dependency-review |
+| `ottplay-swop` | Signatures, PR reviews, CodeQL `none` / `none` (add CI contexts later when workflows exist) |
 
 ## Usage
 
 ```bash
-cp terraform.tfvars.example terraform.tfvars  # local runs only
+cp terraform.tfvars.example terraform.tfvars  # local runs only; gitignored
 terraform init
 terraform plan
 terraform apply

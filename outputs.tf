@@ -11,6 +11,11 @@ output "repositories" {
       html_url = github_repository.ottplay_foss.html_url
       ssh_url  = github_repository.ottplay_foss.ssh_clone_url
     }
+    ottplay_swop = {
+      name     = github_repository.ottplay_swop.name
+      html_url = github_repository.ottplay_swop.html_url
+      ssh_url  = github_repository.ottplay_swop.ssh_clone_url
+    }
   }
 }
 
