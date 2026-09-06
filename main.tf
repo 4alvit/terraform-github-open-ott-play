@@ -147,6 +147,24 @@ resource "github_repository_dependabot_security_updates" "ottplay_swop" {
   enabled    = true
 }
 
+# Bot account (californiantiramisu) via org team `bots` needs write so
+# auto-approve can dismiss stale reviews on re-push (read-only → HTTP 404).
+data "github_team" "bots" {
+  slug = "bots"
+}
+
+resource "github_team_repository" "bots_ottplay_foss" {
+  team_id    = data.github_team.bots.id
+  repository = github_repository.ottplay_foss.name
+  permission = "push"
+}
+
+resource "github_team_repository" "bots_ottplay_swop" {
+  team_id    = data.github_team.bots.id
+  repository = github_repository.ottplay_swop.name
+  permission = "push"
+}
+
 # terraform-github-open-ott-play lives under the 4alvit personal account
 # (transferred out of the org) — managed outside this module.
 # (State entries for it were dropped during the transfer migration.)
