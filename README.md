@@ -30,6 +30,7 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `.github` — organization profile repo
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
+- `foss-cloudflare-infrastructure` — Terraform for Cloudflare Zero Trust (Access / service tokens; secrets local-only)
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
@@ -47,6 +48,7 @@ Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 | `.github` | Signatures, PR reviews, CodeQL `errors` / `high_or_higher` |
 | `ottplay-foss` | Signatures, PR reviews, CodeQL `none` / `none`, **required checks**: Lint, Typecheck, Build, dependency-review |
 | `ottplay-swop` | Signatures, PR reviews, CodeQL `none` / `none` (add CI contexts later when workflows exist) |
+| `foss-cloudflare-infrastructure` | Signatures, PR reviews, CodeQL `none` / `none` |
 
 ## Usage
 
