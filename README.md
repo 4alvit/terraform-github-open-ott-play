@@ -8,7 +8,7 @@ Remote state in Terraform Cloud (free tier):
 
 | | |
 |---|---|
-| TFC organization | `victron-venus` |
+| TFC organization | `alvit` |
 | Workspace | `github-open-ott-play-infrastructure` |
 
 ## Required Variables
