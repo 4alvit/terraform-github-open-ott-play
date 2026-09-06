@@ -16,6 +16,11 @@ output "repositories" {
       html_url = github_repository.ottplay_swop.html_url
       ssh_url  = github_repository.ottplay_swop.ssh_clone_url
     }
+    foss_cloudflare_infrastructure = {
+      name     = github_repository.foss_cloudflare_infrastructure.name
+      html_url = github_repository.foss_cloudflare_infrastructure.html_url
+      ssh_url  = github_repository.foss_cloudflare_infrastructure.ssh_clone_url
+    }
   }
 }
 

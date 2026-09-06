@@ -109,6 +109,52 @@ resource "github_repository_dependabot_security_updates" "ottplay_foss" {
 # Remote VKB text entry (TV↔phone) — Cloudflare Worker + KV.
 # Cloudflare account / Worker / KV IDs and tokens are NOT managed here;
 # they live in the app repo's Wrangler config (examples only, no secrets in git).
+
+# Generic Cloudflare / Zero Trust IaC (Access apps, service tokens, tunnel notes).
+# Secrets stay in the app repo's gitignored local.secrets.tfvars — not here.
+resource "github_repository" "foss_cloudflare_infrastructure" {
+  name        = "foss-cloudflare-infrastructure"
+  description = "Terraform for Cloudflare Zero Trust (Access apps, policies, service tokens) with local-only secrets"
+  visibility  = "public"
+
+  has_issues      = true
+  has_projects    = false
+  has_wiki        = false
+  has_discussions = false
+
+  allow_merge_commit     = true
+  allow_squash_merge     = true
+  allow_rebase_merge     = true
+  allow_auto_merge       = true
+  delete_branch_on_merge = true
+
+  topics = [
+    "cloudflare",
+    "zero-trust",
+    "terraform",
+    "access",
+    "infrastructure-as-code",
+  ]
+
+  license_template = "mit"
+}
+
+resource "github_repository_vulnerability_alerts" "foss_cloudflare_infrastructure" {
+  repository = github_repository.foss_cloudflare_infrastructure.name
+  depends_on = [github_repository.foss_cloudflare_infrastructure]
+}
+
+resource "github_repository_dependabot_security_updates" "foss_cloudflare_infrastructure" {
+  repository = github_repository.foss_cloudflare_infrastructure.id
+  enabled    = true
+}
+
+resource "github_team_repository" "bots_foss_cloudflare_infrastructure" {
+  team_id    = data.github_team.bots.id
+  repository = github_repository.foss_cloudflare_infrastructure.name
+  permission = "push"
+}
+
 resource "github_repository" "ottplay_swop" {
   name        = "ottplay-swop"
   description = "Ephemeral remote text entry for ottplay-foss (TV↔phone) — Cloudflare Worker + KV session/poll API"
@@ -307,6 +353,55 @@ resource "github_repository_ruleset" "ottplay_foss" {
 resource "github_repository_ruleset" "ottplay_swop" {
   name        = "Default"
   repository  = github_repository.ottplay_swop.name
+  target      = "branch"
+  enforcement = "active"
+
+  bypass_actors {
+    actor_id    = 5
+    actor_type  = "RepositoryRole"
+    bypass_mode = "always"
+  }
+
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+
+  rules {
+    deletion            = true
+    non_fast_forward    = true
+    required_signatures = true
+
+    copilot_code_review {
+      review_draft_pull_requests = true
+      review_on_push             = true
+    }
+
+    pull_request {
+      allowed_merge_methods             = ["merge", "squash", "rebase"]
+      dismiss_stale_reviews_on_push     = false
+      require_code_owner_review         = true
+      require_last_push_approval        = true
+      required_approving_review_count   = 1
+      required_review_thread_resolution = true
+    }
+
+    required_code_scanning {
+      required_code_scanning_tool {
+        alerts_threshold          = "none"
+        security_alerts_threshold = "none"
+        tool                      = "CodeQL"
+      }
+    }
+  }
+}
+
+
+resource "github_repository_ruleset" "foss_cloudflare_infrastructure" {
+  name        = "Default"
+  repository  = github_repository.foss_cloudflare_infrastructure.name
   target      = "branch"
   enforcement = "active"
 
