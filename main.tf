@@ -4,7 +4,7 @@ terraform {
 
   # Remote state storage in Terraform Cloud (free tier)
   cloud {
-    organization = "victron-venus"
+    organization = "open-ott-play"
 
     workspaces {
       name = "github-open-ott-play-infrastructure"
