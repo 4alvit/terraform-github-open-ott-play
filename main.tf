@@ -446,3 +446,16 @@ resource "github_repository_ruleset" "foss_cloudflare_infrastructure" {
     }
   }
 }
+
+# Extend the existing bot team's approved access to these existing repositories.
+resource "github_team_repository" "bots_profile" {
+  team_id    = data.github_team.bots.id
+  repository = github_repository.profile.name
+  permission = "push"
+}
+
+resource "github_team_repository" "bots_ottplay_web_vitrine" {
+  team_id    = data.github_team.bots.id
+  repository = "ottplay-web-vitrine"
+  permission = "push"
+}
