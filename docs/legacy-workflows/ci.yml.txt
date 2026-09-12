@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '**.json'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '**.json'
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Terraform CI
+    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/terraform-ci.yml@914ef58bbb7c711648d76b15af2c3c14db63771f
+    with:
+      working-directory: '.'
