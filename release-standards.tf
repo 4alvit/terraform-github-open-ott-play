@@ -1,5 +1,7 @@
 # Enable per repository only AFTER its Quality gate workflow is merged and green.
-# This creates additive rules; existing review/signature/security rules stay active.
+# This creates additive rules only for PUBLIC repositories, after explicit opt-in.
+# Private repositories use the same local/CI checks without paid GitHub protections.
+# Existing review/signature/security rules stay active.
 variable "release_gate_repositories" {
   description = "Repositories migrated to the callable Quality gate workflow"
   type        = set(string)
@@ -30,13 +32,30 @@ variable "release_reviewer_login" {
   default     = "4alvit"
 }
 
+# Read actual visibility so an example cannot accidentally require paid features
+# after a repository becomes private. All repository sets remain empty by default.
+data "github_repository" "release_standard" {
+  for_each  = setunion(var.release_gate_repositories, var.release_channel_repositories, var.production_deployment_repositories)
+  full_name = "${var.github_organization}/${each.value}"
+}
+
+locals {
+  release_public_repositories = toset([
+    for repo, metadata in data.github_repository.release_standard : repo
+    if metadata.visibility == "public"
+  ])
+  release_protected_gate_repositories       = setintersection(var.release_gate_repositories, local.release_public_repositories)
+  release_protected_channel_repositories    = setintersection(var.release_channel_repositories, local.release_public_repositories)
+  release_protected_deployment_repositories = setintersection(var.production_deployment_repositories, local.release_public_repositories)
+}
+
 data "github_user" "release_reviewer" {
-  count    = length(setunion(var.release_channel_repositories, var.production_deployment_repositories)) > 0 ? 1 : 0
+  count    = length(setunion(local.release_protected_channel_repositories, local.release_protected_deployment_repositories)) > 0 ? 1 : 0
   username = var.release_reviewer_login
 }
 
 resource "github_repository_ruleset" "release_quality_gate" {
-  for_each    = var.release_gate_repositories
+  for_each    = local.release_protected_gate_repositories
   name        = "Release standard - required CI gate"
   repository  = each.value
   target      = "branch"
@@ -61,7 +80,7 @@ resource "github_repository_ruleset" "release_quality_gate" {
 }
 
 resource "github_repository_ruleset" "immutable_release_tags" {
-  for_each    = var.release_channel_repositories
+  for_each    = local.release_protected_channel_repositories
   name        = "Release standard - immutable version tags"
   repository  = each.value
   target      = "tag"
@@ -81,8 +100,8 @@ resource "github_repository_ruleset" "immutable_release_tags" {
 
 locals {
   release_environments = merge(
-    { for repo in var.release_channel_repositories : "${repo}/release" => { repository = repo, environment = "release" } },
-    { for repo in var.production_deployment_repositories : "${repo}/production" => { repository = repo, environment = "production" } }
+    { for repo in local.release_protected_channel_repositories : "${repo}/release" => { repository = repo, environment = "release" } },
+    { for repo in local.release_protected_deployment_repositories : "${repo}/production" => { repository = repo, environment = "production" } }
   )
 }
 
@@ -117,6 +136,7 @@ variable "release_publication_enabled_repositories" {
   default     = []
 }
 
+# This ordinary Actions variable is independent of environment/ruleset eligibility.
 resource "github_actions_variable" "release_publication_enabled" {
   for_each      = var.release_channel_repositories
   repository    = each.value
