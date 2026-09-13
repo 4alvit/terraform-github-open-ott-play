@@ -14,6 +14,14 @@ reviewer environment or ruleset to run its local validation and OSS scanners.
 No billing, subscription or Advanced Security feature is enabled by this module.
 Existing public security/review configuration stays in place.
 
+The required CI gate has a permanent repository-administrator override:
+`RepositoryRole`, actor ID `5`, `bypass_mode = "always"`. This matches the existing
+`Default` branch rulesets and permits an explicitly requested administrative
+merge while checks wait. Other contributors remain subject to the CI gate.
+Tag rules receive no bypass actors. Release environments retain their reviewer
+policies and explicitly allow administrators to bypass a waiting approval with
+`can_admins_bypass = true`.
+
 `RELEASE_CHANNELS_ENABLED` remains a separate ordinary Actions variable, controlled
 by `release_publication_enabled_repositories`; it uses the same live public-visibility
 filter as the protections. Enabled repositories must also be declared release
@@ -41,9 +49,10 @@ review confirms successful candidate builds and migrated deployment hooks.
 The stable reviewer is `4alvit` (GitHub user ID `272257197`). The existing single
 maintainer policy permits that owner to request and approve stable promotion;
 `prevent_self_review=false` does not remove the required environment approval.
-Release environments explicitly set `can_admins_bypass=false`, so administrators
-must use the required approval instead of bypassing a waiting deployment. Other
-environment types retain their existing provider default.
+Release environments explicitly set `can_admins_bypass=true`, so repository
+administrators can override a waiting deployment approval. The reviewer and
+default-branch policies remain configured. The same administrator override applies
+to any production environments explicitly added to this module.
 
 Use this inventory only with this repository's existing HCP Terraform workspace.
 Terraform loads this root file automatically, so ordinary future plans retain the
@@ -75,6 +84,14 @@ mocked GitHub provider in a temporary copy with no backend or credentials. They
 exercise public opt-in, default-disabled publication, private exclusion, and
 rejection of private or undeclared publication targets. These tests never plan or
 apply changes against a live GitHub repository or canonical Terraform state.
+The contracts also check administrator bypass on every CI gate and release
+environment, retained reviewers and branch policies, and no bypasses on immutable
+tags.
+
+After the initial rollout, use unrestricted plans for infrastructure maintenance.
+The canonical `imports.tf` adopts existing resources without replacement. A full
+post-apply plan, with no `-target` filters and no `ignore_changes` added to hide
+differences, must report no resource changes.
 
 ## Legacy release webhooks
 
@@ -90,3 +107,11 @@ Release-only hooks remain disabled; shared hooks retain their unrelated event
 subscriptions. Hook URLs, secrets, configuration and private receiver repositories
 are deliberately outside this manifest. Candidate publication must not trigger
 production deployment; stable deployment remains a separate explicit operation.
+
+The retired `ottplay-foss` release hook `675885246` remains disabled and outside
+Terraform ownership. It has a write-only HMAC secret: the GitHub provider imports
+only the masked value, so adopting it without the original credential would
+produce drift or replace that secret. The inventory records this explicit
+boundary; it does not substitute a fake secret or suppress changes. Bot team
+metadata and repository grants are imported separately without altering team
+membership.

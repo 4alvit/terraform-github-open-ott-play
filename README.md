@@ -36,7 +36,8 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `.github` — organization profile repo
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
-- `foss-cloudflare-infrastructure` — Terraform for Cloudflare Zero Trust (Access / service tokens; secrets local-only)
+- `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
+- `foss-cloudflare-infrastructure` — archived Terraform for Cloudflare Zero Trust; kept archived
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
@@ -44,6 +45,12 @@ Set these in Terraform Cloud workspace variables (not in git):
 
 - Vulnerability alerts (`github_repository_vulnerability_alerts`)
 - Dependabot security updates (`github_repository_dependabot_security_updates`)
+
+The archived infrastructure repository has no active vulnerability-alert resource:
+GitHub disables alerts on archives, and the provider cannot refresh that resource.
+Its obsolete state entry is forgotten with `destroy = false`; the repository,
+ruleset and bot access remain represented. The vitrine's existing disabled
+Dependabot security updates are preserved.
 
 ### Branch Protection Rulesets
 
@@ -56,6 +63,12 @@ Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 | `ottplay-swop` | Signatures, PR reviews, CodeQL `none` / `none` (add CI contexts later when workflows exist) |
 | `foss-cloudflare-infrastructure` | Signatures, PR reviews, CodeQL `none` / `none` |
 
+Every active repository also has the additive release CI gate. Both the existing
+`Default` rules and these CI gates permanently allow repository administrators
+(`RepositoryRole`, ID `5`, mode `always`) to override merge requirements. Release
+environments also allow administrators to bypass a waiting approval while
+retaining their reviewer and branch policies. Immutable tags have no bypass.
+
 ## Usage
 
 ```bash
@@ -67,45 +80,29 @@ terraform apply
 
 For normal operation use the Terraform Cloud workspace (VCS-driven or CLI-driven).
 
-### Running locally (disconnect from Terraform Cloud)
+### Canonical state and full drift checks
 
-Use this when you want `terraform plan` / `apply` on your machine **without** HCP Terraform remote execution or remote state.
+Keep the `cloud {}` block attached to organization `open-ott-play`, workspace
+`github-open-ott-play-infrastructure`. An isolated Git worktree still uses that
+same canonical state. Do not detach it, copy state into a second owner, or hide
+differences with `ignore_changes`.
 
-This repo’s `cloud {}` block in `main.tf` targets organization `open-ott-play`, workspace `github-open-ott-play-infrastructure`.
-
-#### Temporary detach (recommended for experiments)
-
-1. Comment out the entire `cloud { ... }` block in `main.tf`.
-2. Clear the local backend cache from the repo root:
-   ```bash
-   rm -rf .terraform
-   ```
-3. Re-init (local state by default):
-   ```bash
-   terraform init
-   ```
-4. Provide variables locally — TFC workspace variables are **not** used when detached:
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars   # edit; gitignored
-   # or: export TF_VAR_github_token=...
-   terraform plan
-   terraform apply
-   ```
-
-#### Keep existing remote state locally (optional)
-
-While still attached to TFC:
+`imports.tf` adopts the existing vitrine and its security settings, the existing
+bot team, and its access to `.github` and the vitrine. Imports preserve the same
+remote objects. Review their full plan together with ordinary resource changes:
 
 ```bash
-terraform state pull > terraform.tfstate
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+terraform plan -detailed-exitcode
 ```
 
-Then comment out `cloud {}` in `main.tf`, `rm -rf .terraform`, `terraform init`, and confirm with `terraform state list`. Keep `terraform.tfstate` **gitignored** — never commit it.
+The final unrestricted plan must report no changes (exit code `0`). A targeted
+plan is insufficient evidence of a clean workspace. Inspect live inventory too:
+an object absent from configuration and state cannot appear as plan drift.
+Never commit credentials, private variable files, saved plans, or state files.
+For syntax and contract tests without credentials or state access, run
+`bash scripts/ci.sh`.
 
-#### Warnings
-
-- Do not apply from both TFC and local against the same resources without coordinating state (drift / conflicts).
-- To re-enable TFC: uncomment `cloud {}`, remove local `.terraform` (and local state if migrating back), then `terraform init`. Only `state push` / migrate if you know what you are doing.
-- Never commit credentials, `terraform.tfvars` with secrets, or state files.
-
-Requires Terraform ≥ 1.5 (HCP Terraform `cloud {}` block; not the old `backend "remote"` syntax).
+Requires Terraform ≥ 1.15.7.

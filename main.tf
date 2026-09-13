@@ -116,6 +116,7 @@ resource "github_repository" "foss_cloudflare_infrastructure" {
   name        = "foss-cloudflare-infrastructure"
   description = "Terraform for Cloudflare Zero Trust (Access apps, policies, service tokens) with local-only secrets"
   visibility  = "public"
+  archived    = true
 
   has_issues      = true
   has_projects    = false
@@ -139,18 +140,23 @@ resource "github_repository" "foss_cloudflare_infrastructure" {
   license_template = "mit"
 }
 
-resource "github_repository_vulnerability_alerts" "foss_cloudflare_infrastructure" {
-  repository = github_repository.foss_cloudflare_infrastructure.name
-  depends_on = [github_repository.foss_cloudflare_infrastructure]
+# GitHub disables vulnerability alerts for archived repositories and the provider
+# rejects reading this legacy resource. Keep the archive itself under management.
+removed {
+  from = github_repository_vulnerability_alerts.foss_cloudflare_infrastructure
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 resource "github_repository_dependabot_security_updates" "foss_cloudflare_infrastructure" {
   repository = github_repository.foss_cloudflare_infrastructure.id
-  enabled    = true
+  enabled    = false
 }
 
 resource "github_team_repository" "bots_foss_cloudflare_infrastructure" {
-  team_id    = data.github_team.bots.id
+  team_id    = github_team.bots.id
   repository = github_repository.foss_cloudflare_infrastructure.name
   permission = "push"
 }
@@ -195,18 +201,20 @@ resource "github_repository_dependabot_security_updates" "ottplay_swop" {
 
 # Bot account (californiantiramisu) via org team `bots` needs write so
 # auto-approve can dismiss stale reviews on re-push (read-only → HTTP 404).
-data "github_team" "bots" {
-  slug = "bots"
+resource "github_team" "bots" {
+  name                 = "bots"
+  privacy              = "closed"
+  notification_setting = "notifications_enabled"
 }
 
 resource "github_team_repository" "bots_ottplay_foss" {
-  team_id    = data.github_team.bots.id
+  team_id    = github_team.bots.id
   repository = github_repository.ottplay_foss.name
   permission = "push"
 }
 
 resource "github_team_repository" "bots_ottplay_swop" {
-  team_id    = data.github_team.bots.id
+  team_id    = github_team.bots.id
   repository = github_repository.ottplay_swop.name
   permission = "push"
 }
@@ -449,13 +457,13 @@ resource "github_repository_ruleset" "foss_cloudflare_infrastructure" {
 
 # Extend the existing bot team's approved access to these existing repositories.
 resource "github_team_repository" "bots_profile" {
-  team_id    = data.github_team.bots.id
+  team_id    = github_team.bots.id
   repository = github_repository.profile.name
   permission = "push"
 }
 
 resource "github_team_repository" "bots_ottplay_web_vitrine" {
-  team_id    = data.github_team.bots.id
-  repository = "ottplay-web-vitrine"
+  team_id    = github_team.bots.id
+  repository = github_repository.ottplay_web_vitrine.name
   permission = "push"
 }
