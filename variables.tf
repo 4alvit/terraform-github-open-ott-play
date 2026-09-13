@@ -14,4 +14,5 @@ variable "billing_email" {
   description = "Organization billing email"
   type        = string
   sensitive   = true
+  default     = null
 }
