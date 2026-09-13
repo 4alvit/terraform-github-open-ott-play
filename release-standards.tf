@@ -37,6 +37,13 @@ variable "release_reviewer_login" {
 data "github_repository" "release_standard" {
   for_each  = setunion(var.release_gate_repositories, var.release_channel_repositories, var.production_deployment_repositories)
   full_name = "${var.github_organization}/${each.value}"
+
+  lifecycle {
+    postcondition {
+      condition     = !contains(var.release_publication_enabled_repositories, each.key) || self.visibility == "public"
+      error_message = "Release publication may only be enabled for a currently public repository."
+    }
+  }
 }
 
 locals {
@@ -131,15 +138,29 @@ resource "github_repository_environment_deployment_policy" "release_standard" {
 # Keep public candidates disabled until legacy production hooks have been migrated.
 # Build-only nightlies still run and retain Actions artifacts.
 variable "release_publication_enabled_repositories" {
-  description = "Repositories whose release protections and deployment-hook migration are complete"
+  description = "Public repositories whose release protections and deployment-hook migration are complete"
   type        = set(string)
   default     = []
+
+  validation {
+    condition     = length(setsubtract(var.release_publication_enabled_repositories, var.release_channel_repositories)) == 0
+    error_message = "Every publication-enabled repository must also be listed in release_channel_repositories."
+  }
 }
 
-# This ordinary Actions variable is independent of environment/ruleset eligibility.
+# Apply the same public-only boundary to variables as to protections.
 resource "github_actions_variable" "release_publication_enabled" {
-  for_each      = var.release_channel_repositories
+  for_each      = local.release_protected_channel_repositories
   repository    = each.value
   variable_name = "RELEASE_CHANNELS_ENABLED"
   value         = contains(var.release_publication_enabled_repositories, each.value) ? "true" : "false"
+
+  # A push or scheduled run may start as soon as this variable becomes true.
+  # Finish reviewer/default-branch and immutable-tag protection first.
+  depends_on = [
+    github_repository_ruleset.release_quality_gate,
+    github_repository_ruleset.immutable_release_tags,
+    github_repository_environment.release_standard,
+    github_repository_environment_deployment_policy.release_standard,
+  ]
 }

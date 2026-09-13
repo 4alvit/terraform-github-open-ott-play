@@ -8,3 +8,6 @@ tfplan
 logs/
 *.backup
 .state-migration-backup/
+
+# Saved plans can contain sensitive values.
+*.tfplan
