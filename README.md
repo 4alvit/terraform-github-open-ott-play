@@ -17,7 +17,7 @@ Remote state in Terraform Cloud (free tier):
 | TFC organization | `open-ott-play` |
 | Workspace | `github-open-ott-play-infrastructure` |
 
-## Required Variables
+## Variables
 
 Set these in Terraform Cloud workspace variables (not in git):
 
@@ -25,7 +25,7 @@ Set these in Terraform Cloud workspace variables (not in git):
 |----------|-------------|-----------|
 | `github_token` | GitHub PAT with `repo`, `admin:repo_hook`, `admin:org` scopes | Yes |
 | `github_organization` | GitHub org name (default: `open-ott-play`) | No |
-| `billing_email` | Organization billing email | Yes |
+| `billing_email` | Optional, currently unused organization billing email (default: `null`) | Yes |
 
 **Do not** put Cloudflare account IDs, API tokens, Worker URLs, or KV namespace IDs in this module. Those belong in the `ottplay-swop` app repo Wrangler config (local / CI secrets only).
 
@@ -87,7 +87,7 @@ This repo’s `cloud {}` block in `main.tf` targets organization `open-ott-play`
 4. Provide variables locally — TFC workspace variables are **not** used when detached:
    ```bash
    cp terraform.tfvars.example terraform.tfvars   # edit; gitignored
-   # or: export TF_VAR_github_token=... TF_VAR_billing_email=...
+   # or: export TF_VAR_github_token=...
    terraform plan
    terraform apply
    ```
