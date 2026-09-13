@@ -18,8 +18,9 @@ The required CI gate has a permanent repository-administrator override:
 `RepositoryRole`, actor ID `5`, `bypass_mode = "always"`. This matches the existing
 `Default` branch rulesets and permits an explicitly requested administrative
 merge while checks wait. Other contributors remain subject to the CI gate.
-Tag rules receive no bypass actors, and release environments still require
-approval with `can_admins_bypass = false`.
+Tag rules receive no bypass actors. Release environments keep their required
+reviewer and branch policies while permitting administrator bypass with
+`can_admins_bypass = true`.
 
 `RELEASE_CHANNELS_ENABLED` remains a separate ordinary Actions variable, controlled
 by `release_publication_enabled_repositories`; it uses the same live public-visibility
@@ -48,9 +49,10 @@ review confirms successful candidate builds and migrated deployment hooks.
 The stable reviewer is `4alvit` (GitHub user ID `272257197`). The existing single
 maintainer policy permits that owner to request and approve stable promotion;
 `prevent_self_review=false` does not remove the required environment approval.
-Release environments explicitly set `can_admins_bypass=false`, so administrators
-must use the required approval instead of bypassing a waiting deployment. Other
-environment types retain their existing provider default.
+Release environments explicitly set `can_admins_bypass=true`, so administrators
+can bypass a waiting deployment approval under the owner's policy. Reviewer and
+default-branch restrictions remain configured. Other environment types retain
+their existing provider default.
 
 Use this inventory only with this repository's existing HCP Terraform workspace.
 Terraform loads this root file automatically, so ordinary future plans retain the
@@ -82,8 +84,9 @@ mocked GitHub provider in a temporary copy with no backend or credentials. They
 exercise public opt-in, default-disabled publication, private exclusion, and
 rejection of private or undeclared publication targets. These tests never plan or
 apply changes against a live GitHub repository or canonical Terraform state.
-The contracts also check administrator bypass on every CI gate and the absence
-of bypasses on immutable tags and required release approvals.
+The contracts also check administrator bypass on every CI gate and release
+environment, preserved reviewers and branch policies, and no bypasses on immutable
+tags.
 
 After the initial rollout, use unrestricted plans for infrastructure maintenance.
 The canonical `imports.tf` adopts existing resources without replacement. A full
