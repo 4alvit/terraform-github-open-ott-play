@@ -42,6 +42,24 @@ run "public_protections_keep_publication_disabled" {
     error_message = "Adding protections must not enable publication or create environments for validation-only repositories."
   }
   assert {
+    condition = alltrue([
+      for gate in github_repository_ruleset.release_quality_gate :
+      length(gate.bypass_actors) == 1 &&
+      one(gate.bypass_actors).actor_type == "RepositoryRole" &&
+      one(gate.bypass_actors).actor_id == 5 &&
+      one(gate.bypass_actors).bypass_mode == "always"
+    ])
+    error_message = "Every public CI gate must retain permanent repository-administrator bypass."
+  }
+  assert {
+    condition = (
+      length(github_repository_ruleset.immutable_release_tags["app"].bypass_actors) == 0 &&
+      one(github_repository_ruleset.immutable_release_tags["app"].rules).deletion &&
+      one(github_repository_ruleset.immutable_release_tags["app"].rules).update
+    )
+    error_message = "Branch merge overrides must not weaken immutable release tags."
+  }
+  assert {
     condition = (
       one(github_repository_environment.release_standard["app/release"].reviewers).users == toset([272257197]) &&
       github_repository_environment.release_standard["app/release"].prevent_self_review == false &&

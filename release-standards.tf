@@ -67,6 +67,13 @@ resource "github_repository_ruleset" "release_quality_gate" {
   repository  = each.value
   target      = "branch"
   enforcement = "active"
+  # Administrators retain a permanent merge override during CI outages.
+  # Tag immutability and deployment approvals have separate policies below.
+  bypass_actors {
+    actor_id    = 5
+    actor_type  = "RepositoryRole"
+    bypass_mode = "always"
+  }
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]
