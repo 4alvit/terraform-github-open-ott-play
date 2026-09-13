@@ -41,6 +41,9 @@ review confirms successful candidate builds and migrated deployment hooks.
 The stable reviewer is `4alvit` (GitHub user ID `272257197`). The existing single
 maintainer policy permits that owner to request and approve stable promotion;
 `prevent_self_review=false` does not remove the required environment approval.
+Release environments explicitly set `can_admins_bypass=false`, so administrators
+must use the required approval instead of bypassing a waiting deployment. Other
+environment types retain their existing provider default.
 
 Use this inventory only with this repository's existing HCP Terraform workspace.
 Terraform loads this root file automatically, so ordinary future plans retain the

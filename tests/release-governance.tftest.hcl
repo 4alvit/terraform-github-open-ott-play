@@ -45,9 +45,10 @@ run "public_protections_keep_publication_disabled" {
     condition = (
       one(github_repository_environment.release_standard["app/release"].reviewers).users == toset([272257197]) &&
       github_repository_environment.release_standard["app/release"].prevent_self_review == false &&
+      github_repository_environment.release_standard["app/release"].can_admins_bypass == false &&
       github_repository_environment_deployment_policy.release_standard["app/release"].branch_pattern == "main"
     )
-    error_message = "Keep the reviewed owner approval and default-branch-only policy."
+    error_message = "Keep required owner approval without administrator bypass and the default-branch-only policy."
   }
 }
 
