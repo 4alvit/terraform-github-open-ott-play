@@ -1,7 +1,8 @@
 # Optional GitHub governance
 
-`release-standards.tf` is an additive, explicit opt-in. All repository sets default
-to empty. The example `examples/release-standard.tfvars.json` lists public projects
+`release-standards.tf` is an additive, explicit opt-in. The input variables default
+to empty; the checked-in root `release-activation.auto.tfvars.json` explicitly opts
+the reviewed public fleet in. The example `examples/release-standard.tfvars.json` lists public projects
 only; merge and verify their CI gate before using any entries. It is not applied
 automatically by CI or by the release installer.
 
@@ -30,7 +31,7 @@ plans live changes, applies or changes GitHub settings.
 
 ## Public activation inventory
 
-`activation/public-release.tfvars.json` is the reviewed public-only inventory for
+`release-activation.auto.tfvars.json` is the reviewed public-only inventory for
 this owner, captured from the workspace fleet on 2026-09-13. It selects CI gates
 for public validation and application repositories, and release environments and
 immutable version tags only for application repositories. It selects no production
@@ -42,11 +43,12 @@ maintainer policy permits that owner to request and approve stable promotion;
 `prevent_self_review=false` does not remove the required environment approval.
 
 Use this inventory only with this repository's existing HCP Terraform workspace.
-It is not an automatically loaded variable file. The initial rollout must inspect
+Terraform loads this root file automatically, so ordinary future plans retain the
+reviewed protections without an extra CLI flag. The initial rollout must inspect
 a saved targeted plan for the additive release resources before applying it:
 
 ```bash
-terraform plan -var-file=activation/public-release.tfvars.json \
+terraform plan \
   -target=github_repository_ruleset.release_quality_gate \
   -target=github_repository_ruleset.immutable_release_tags \
   -target=github_repository_environment.release_standard \
