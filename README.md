@@ -65,9 +65,8 @@ Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 
 Every active repository also has the additive release CI gate. Both the existing
 `Default` rules and these CI gates permanently allow repository administrators
-(`RepositoryRole`, ID `5`, mode `always`) to override merge requirements. Release
-environments also allow administrators to bypass a waiting approval while
-retaining their reviewer and branch policies. Immutable tags have no bypass.
+(`RepositoryRole`, ID `5`, mode `always`) to override merge requirements. This
+does not add an override to immutable release tags or deployment approvals.
 
 ## Usage
 
