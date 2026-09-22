@@ -20,5 +20,6 @@
     "inventory",
     "terraform/_archived_monolith"
   ],
-  "visibility": "public"
+  "visibility": "public",
+  "single_entry_ci": true
 }
