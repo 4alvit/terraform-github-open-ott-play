@@ -152,3 +152,56 @@ run "archived_repository_keeps_existing_gate" {
     error_message = "Do not change bypass permissions or remove existing CI gates on archived repositories."
   }
 }
+
+run "required_checks_are_bound_to_source_apps" {
+  command = plan
+  variables {
+    release_gate_repositories = ["app"]
+    release_external_checks = {
+      app = { "CodeQL" = 57789, "SonarCloud Code Analysis" = 12526 }
+    }
+  }
+  assert {
+    condition = tomap({
+      for check in one(one(github_repository_ruleset.release_quality_gate["app"].rules).required_status_checks).required_check :
+      check.context => tonumber(check.integration_id)
+    }) == tomap({ "CI gate" = 15368, "CodeQL" = 57789, "SonarCloud Code Analysis" = 12526 })
+    error_message = "Native auto-merge must preserve every required external check and its source GitHub App."
+  }
+}
+
+run "reusable_pins_are_immutable_and_public_only" {
+  command = plan
+  variables {
+    workflow_pin_repositories = ["toolkit", "private-toolkit"]
+  }
+  override_data {
+    target = data.github_repository.release_standard["private-toolkit"]
+    values = { visibility = "private" }
+  }
+  assert {
+    condition = (
+      toset(keys(github_repository_ruleset.reusable_workflow_pins)) == toset(["toolkit"]) &&
+      one(github_repository_ruleset.reusable_workflow_pins["toolkit"].rules).deletion &&
+      one(github_repository_ruleset.reusable_workflow_pins["toolkit"].rules).update &&
+      length(github_repository_ruleset.reusable_workflow_pins["toolkit"].bypass_actors) == 0 &&
+      toset(one(one(github_repository_ruleset.reusable_workflow_pins["toolkit"].conditions).ref_name).include) == toset(["refs/tags/workflow-pins/*"])
+    )
+    error_message = "Protect immutable reusable workflow tags without enabling paid private repository rules."
+  }
+}
+
+run "token_defaults_preserve_actions_approval" {
+  command = plan
+  variables {
+    read_token_repositories = ["app"]
+  }
+  assert {
+    condition = (
+      length(github_workflow_repository_permissions.ci_defaults) == 1 &&
+      github_workflow_repository_permissions.ci_defaults["app"].default_workflow_permissions == "read" &&
+      github_workflow_repository_permissions.ci_defaults["app"].can_approve_pull_request_reviews
+    )
+    error_message = "Read-only defaults must preserve official Dependabot approval through Actions."
+  }
+}

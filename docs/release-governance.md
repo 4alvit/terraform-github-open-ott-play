@@ -116,3 +116,21 @@ produce drift or replace that secret. The inventory records this explicit
 boundary; it does not substitute a fake secret or suppress changes. Bot team
 metadata and repository grants are imported separately without altering team
 membership.
+
+## CI source bindings and reusable workflow pins
+
+`CI gate` is bound to GitHub Actions (App 15368). `release_external_checks` keeps
+CodeQL, SonarCloud and other always-present security contexts bound to their
+observed GitHub App IDs. Conditional Gitar checks are not made permanently required;
+repositories using them retain the legacy merger's wait for observed checks.
+
+`workflow_pin_repositories` protects `workflow-pins/*` tags from deletion or updates.
+These tags retain reviewed reusable workflow commits. Create a new tag for a new
+version; do not move an existing pin. Existing tag rulesets must be imported before
+applying this configuration. Public visibility remains required for these rules.
+
+`read_token_repositories` owns the audited repository-level GITHUB_TOKEN defaults:
+read-only by default, with Actions approval explicitly allowed. Workflows request
+additional scopes explicitly. This leaves organization-wide defaults out of the
+rollout, so repositories outside the audited set are not changed. Import the existing
+settings using the included declarative imports before the next apply.
