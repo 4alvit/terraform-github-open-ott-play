@@ -67,7 +67,16 @@ resource "github_repository_ruleset" "release_quality_gate" {
   repository  = each.value
   target      = "branch"
   enforcement = "active"
-  # Every merge must satisfy CI, including administrator dependency updates.
+  # Administrators can explicitly override CI for a reviewed pull request.
+  # Direct pushes and immutable release tags do not receive this bypass.
+  dynamic "bypass_actors" {
+    for_each = data.github_repository.release_standard[each.key].archived ? [] : [true]
+    content {
+      actor_id    = 5
+      actor_type  = "RepositoryRole"
+      bypass_mode = "pull_request"
+    }
+  }
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]

@@ -4,6 +4,7 @@ mock_provider "github" {
   mock_data "github_repository" {
     defaults = {
       visibility = "public"
+      archived   = false
     }
   }
   mock_data "github_user" {
@@ -44,11 +45,14 @@ run "public_protections_keep_publication_disabled" {
   assert {
     condition = alltrue([
       for gate in github_repository_ruleset.release_quality_gate :
-      length(gate.bypass_actors) == 0 &&
+      length(gate.bypass_actors) == 1 &&
+      one(gate.bypass_actors).actor_id == 5 &&
+      one(gate.bypass_actors).actor_type == "RepositoryRole" &&
+      one(gate.bypass_actors).bypass_mode == "pull_request" &&
       one(one(gate.rules).required_status_checks).strict_required_status_checks_policy &&
       one(one(one(gate.rules).required_status_checks).required_check).context == "CI gate"
     ])
-    error_message = "Every public CI gate must require successful checks without administrator bypass."
+    error_message = "Branch gates must keep strict CI and allow only repository administrators to bypass via pull requests."
   }
   assert {
     condition = (
@@ -126,4 +130,25 @@ run "publication_requires_channel_membership" {
     release_publication_enabled_repositories = ["not-a-release-app"]
   }
   expect_failures = [var.release_publication_enabled_repositories]
+}
+
+run "archived_repository_keeps_existing_gate" {
+  command = plan
+  variables {
+    release_gate_repositories = ["archived-app"]
+  }
+  override_data {
+    target = data.github_repository.release_standard["archived-app"]
+    values = {
+      visibility = "public"
+      archived   = true
+    }
+  }
+  assert {
+    condition = (
+      length(github_repository_ruleset.release_quality_gate) == 1 &&
+      length(github_repository_ruleset.release_quality_gate["archived-app"].bypass_actors) == 0
+    )
+    error_message = "Do not change bypass permissions or remove existing CI gates on archived repositories."
+  }
 }

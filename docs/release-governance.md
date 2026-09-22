@@ -14,9 +14,12 @@ reviewer environment or ruleset to run its local validation and OSS scanners.
 No billing, subscription or Advanced Security feature is enabled by this module.
 Existing public security/review configuration stays in place.
 
-The required CI gate has no bypass actors. Every merge, including administrator
-dependency updates, must satisfy the strict `CI gate`. The separate default review
-ruleset and release-environment approval policies retain their existing settings.
+The required CI gate grants repository administrators (role ID 5) a
+`pull_request` bypass on active public repositories. Administrators may
+explicitly override CI when merging a PR; ordinary merges still require a
+successful strict gate. This grant does not allow direct pushes and is not added
+to archived repositories. The separate default review ruleset and
+release-environment approval policies retain their existing settings.
 Tag rules receive no bypass actors.
 
 `RELEASE_CHANNELS_ENABLED` remains a separate ordinary Actions variable, controlled
@@ -76,14 +79,15 @@ must remain local and uncommitted. Recheck live visibility and default branches
 before activation. Changing the enabled-publication set is a separate reviewed
 plan after the release preconditions have passed.
 
-`bash scripts/ci.sh` also runs six plan-only Terraform contract tests against a
+`bash scripts/ci.sh` also runs plan-only Terraform contract tests against a
 mocked GitHub provider in a temporary copy with no backend or credentials. They
 exercise public opt-in, default-disabled publication, private exclusion, and
 rejection of private or undeclared publication targets. These tests never plan or
 apply changes against a live GitHub repository or canonical Terraform state.
-The contracts also check that CI gates have no bypass actors, release approval
-retains its existing policy, reviewers and branch restrictions remain configured,
-and immutable tags cannot be bypassed.
+The contracts also check that CI gates grant only repository administrators a
+pull-request-only bypass, archived gates retain their existing permissions,
+release approval retains its policy, reviewers and branch restrictions remain
+configured, and immutable tags cannot be bypassed.
 
 After the initial rollout, use unrestricted plans for infrastructure maintenance.
 The canonical `imports.tf` adopts existing resources without replacement. A full

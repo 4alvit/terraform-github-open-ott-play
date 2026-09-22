@@ -63,10 +63,12 @@ Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 | `ottplay-swop` | Signatures, PR reviews, CodeQL `none` / `none` (add CI contexts later when workflows exist) |
 | `foss-cloudflare-infrastructure` | Signatures, PR reviews, CodeQL `none` / `none` |
 
-Every active repository also has the additive release CI gate. This gate has no
-bypass actors: administrators must also wait for successful checks. The separate
-`Default` review rules and release-environment approval policies retain their
-existing administrator settings. Immutable release tags have no bypass.
+Every active repository also has the additive release CI gate. Repository
+administrators (role ID 5) can explicitly bypass it when merging a pull request;
+normal merges still require successful strict CI. This `pull_request` grant
+does not allow direct pushes and is not added to archived repositories. The
+separate `Default` review rules and release-environment approval policies retain
+their existing settings. Immutable release tags have no bypass.
 
 ## Usage
 
