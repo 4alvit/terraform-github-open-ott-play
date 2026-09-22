@@ -342,16 +342,20 @@ resource "github_repository_ruleset" "ottplay_foss" {
       do_not_enforce_on_create             = false
 
       required_check {
-        context = "Lint"
+        context        = "check-0 / Lint"
+        integration_id = 15368
       }
       required_check {
-        context = "Typecheck"
+        context        = "check-0 / Typecheck"
+        integration_id = 15368
       }
       required_check {
-        context = "Build"
+        context        = "check-0 / Build"
+        integration_id = 15368
       }
       required_check {
-        context = "dependency-review"
+        context        = "check-3 / dependency-review"
+        integration_id = 15368
       }
     }
   }

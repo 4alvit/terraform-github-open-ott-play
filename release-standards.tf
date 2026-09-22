@@ -8,6 +8,32 @@ variable "release_gate_repositories" {
   default     = []
 }
 
+variable "read_token_repositories" {
+  description = "Audited repositories with read-only default tokens and Actions approval enabled"
+  type        = set(string)
+  default     = []
+}
+
+# Manage explicit repository overrides rather than broad organization defaults.
+resource "github_workflow_repository_permissions" "ci_defaults" {
+  for_each                         = var.read_token_repositories
+  repository                       = each.value
+  default_workflow_permissions     = "read"
+  can_approve_pull_request_reviews = true
+}
+
+variable "release_external_checks" {
+  description = "Required external check names and GitHub App IDs, keyed by repository"
+  type        = map(map(number))
+  default     = {}
+}
+
+variable "workflow_pin_repositories" {
+  description = "Public repositories whose workflow-pins tags must remain immutable"
+  type        = set(string)
+  default     = []
+}
+
 variable "release_channel_repositories" {
   description = "Application repositories with reviewed RC-to-stable promotion"
   type        = set(string)
@@ -35,7 +61,7 @@ variable "release_reviewer_login" {
 # Read actual visibility so an example cannot accidentally require paid features
 # after a repository becomes private. All repository sets remain empty by default.
 data "github_repository" "release_standard" {
-  for_each  = setunion(var.release_gate_repositories, var.release_channel_repositories, var.production_deployment_repositories)
+  for_each  = setunion(var.release_gate_repositories, var.release_channel_repositories, var.production_deployment_repositories, var.workflow_pin_repositories)
   full_name = "${var.github_organization}/${each.value}"
 
   lifecycle {
@@ -51,6 +77,7 @@ locals {
     for repo, metadata in data.github_repository.release_standard : repo
     if metadata.visibility == "public"
   ])
+  protected_workflow_pin_repositories       = setintersection(var.workflow_pin_repositories, local.release_public_repositories)
   release_protected_gate_repositories       = setintersection(var.release_gate_repositories, local.release_public_repositories)
   release_protected_channel_repositories    = setintersection(var.release_channel_repositories, local.release_public_repositories)
   release_protected_deployment_repositories = setintersection(var.production_deployment_repositories, local.release_public_repositories)
@@ -90,9 +117,35 @@ resource "github_repository_ruleset" "release_quality_gate" {
       strict_required_status_checks_policy = true
       do_not_enforce_on_create             = false
       required_check {
-        context = "CI gate"
+        context        = "CI gate"
+        integration_id = 15368
+      }
+      dynamic "required_check" {
+        for_each = lookup(var.release_external_checks, each.key, {})
+        content {
+          context        = required_check.key
+          integration_id = required_check.value
+        }
       }
     }
+  }
+}
+
+resource "github_repository_ruleset" "reusable_workflow_pins" {
+  for_each    = local.protected_workflow_pin_repositories
+  name        = "Keep reusable workflow pins"
+  repository  = each.value
+  target      = "tag"
+  enforcement = "active"
+  conditions {
+    ref_name {
+      include = ["refs/tags/workflow-pins/*"]
+      exclude = []
+    }
+  }
+  rules {
+    deletion = true
+    update   = true
   }
 }
 
