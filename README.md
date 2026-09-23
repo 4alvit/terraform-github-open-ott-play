@@ -59,9 +59,14 @@ Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 | Repo | Highlights |
 |------|------------|
 | `.github` | Signatures, PR reviews, CodeQL `errors` / `high_or_higher` |
-| `ottplay-foss` | Signatures, PR reviews, CodeQL `none` / `none`, **required checks**: Lint, Typecheck, Build, dependency-review |
+| `ottplay-foss` | Signatures, PR reviews, CodeQL `none` / `none`, **required check**: canonical `CI gate` (GitHub Actions app 15368) |
 | `ottplay-swop` | Signatures, PR reviews, CodeQL `none` / `none` (add CI contexts later when workflows exist) |
 | `foss-cloudflare-infrastructure` | Signatures, PR reviews, CodeQL `none` / `none` |
+
+The FOSS `CI gate` requires all configured validators for code changes and accepts
+only explicitly proven documentation-only skips. Its CodeQL validator still runs
+for documentation changes. Individual nested job contexts are not required because
+GitHub omits them when the reusable workflow is intentionally skipped.
 
 Every active repository also has the additive release CI gate. Repository
 administrators (role ID 5) can explicitly bypass it when merging a pull request;
