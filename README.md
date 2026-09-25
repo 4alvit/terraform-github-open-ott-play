@@ -49,7 +49,10 @@ Set these in Terraform Cloud workspace variables (not in git):
 are not recreated or stored in Terraform; signing remains a main-only manual
 GitHub Actions workflow with secrets held separately from the published source.
 
-### Security (per repository)
+### Security
+
+Separate security resources cover the profile, FOSS, SWOP, vitrine and archived
+infrastructure repositories:
 
 - Vulnerability alerts (`github_repository_vulnerability_alerts`)
 - Dependabot security updates (`github_repository_dependabot_security_updates`)
@@ -76,7 +79,8 @@ only explicitly proven documentation-only skips. Its CodeQL validator still runs
 for documentation changes. Individual nested job contexts are not required because
 GitHub omits them when the reusable workflow is intentionally skipped.
 
-Every active repository also has the additive release CI gate. Repository
+Public repositories listed in `release_gate_repositories` also have the additive
+release CI gate. Repository
 administrators (role ID 5) can explicitly bypass it when merging a pull request;
 normal merges still require successful strict CI. This `pull_request` grant
 does not allow direct pushes and is not added to archived repositories. The
