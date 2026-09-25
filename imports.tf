@@ -1,6 +1,16 @@
 # Adopt existing GitHub objects into the existing HCP workspace. These addresses
 # remain stable after import; no second state owner or resource recreation is used.
 import {
+  to = github_repository.ottplay_core
+  id = "ottplay-core"
+}
+
+import {
+  to = github_repository.ottplay_android
+  id = "ottplay-android"
+}
+
+import {
   to = github_team.bots
   id = "19138503"
 }

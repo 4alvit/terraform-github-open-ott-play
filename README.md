@@ -35,13 +35,24 @@ Set these in Terraform Cloud workspace variables (not in git):
 
 - `.github` — organization profile repo
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
+- `ottplay-core` — public canonical shared core and independent ES5 client
+- `ottplay-android` — public native Android and Android TV application
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
 - `foss-cloudflare-infrastructure` — archived Terraform for Cloudflare Zero Trust; kept archived
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
-### Security (per repository)
+`native-repositories.tf` adopts the existing core and Android repositories with
+`visibility = "public"` and preserves their repository preferences. Both have
+`prevent_destroy` protection. Their history, releases and Android signing secrets
+are not recreated or stored in Terraform; signing remains a main-only manual
+GitHub Actions workflow with secrets held separately from the published source.
+
+### Security
+
+Separate security resources cover the profile, FOSS, SWOP, vitrine and archived
+infrastructure repositories:
 
 - Vulnerability alerts (`github_repository_vulnerability_alerts`)
 - Dependabot security updates (`github_repository_dependabot_security_updates`)
@@ -68,7 +79,8 @@ only explicitly proven documentation-only skips. Its CodeQL validator still runs
 for documentation changes. Individual nested job contexts are not required because
 GitHub omits them when the reusable workflow is intentionally skipped.
 
-Every active repository also has the additive release CI gate. Repository
+Public repositories listed in `release_gate_repositories` also have the additive
+release CI gate. Repository
 administrators (role ID 5) can explicitly bypass it when merging a pull request;
 normal merges still require successful strict CI. This `pull_request` grant
 does not allow direct pushes and is not added to archived repositories. The
@@ -93,9 +105,10 @@ Keep the `cloud {}` block attached to organization `open-ott-play`, workspace
 same canonical state. Do not detach it, copy state into a second owner, or hide
 differences with `ignore_changes`.
 
-`imports.tf` adopts the existing vitrine and its security settings, the existing
-bot team, and its access to `.github` and the vitrine. Imports preserve the same
-remote objects. Review their full plan together with ordinary resource changes:
+`imports.tf` adopts the existing core, Android and vitrine repositories, the
+vitrine's security settings, the existing bot team, and its access to `.github`
+and the vitrine. Imports preserve the same remote objects. Review their full
+plan together with ordinary resource changes:
 
 ```bash
 terraform init
