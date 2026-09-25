@@ -35,11 +35,19 @@ Set these in Terraform Cloud workspace variables (not in git):
 
 - `.github` — organization profile repo
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
+- `ottplay-core` — public canonical shared core and independent ES5 client
+- `ottplay-android` — public native Android and Android TV application
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
 - `foss-cloudflare-infrastructure` — archived Terraform for Cloudflare Zero Trust; kept archived
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
+
+`native-repositories.tf` adopts the existing core and Android repositories with
+`visibility = "public"` and preserves their repository preferences. Both have
+`prevent_destroy` protection. Their history, releases and Android signing secrets
+are not recreated or stored in Terraform; signing remains a main-only manual
+GitHub Actions workflow with secrets held separately from the published source.
 
 ### Security (per repository)
 
@@ -93,9 +101,10 @@ Keep the `cloud {}` block attached to organization `open-ott-play`, workspace
 same canonical state. Do not detach it, copy state into a second owner, or hide
 differences with `ignore_changes`.
 
-`imports.tf` adopts the existing vitrine and its security settings, the existing
-bot team, and its access to `.github` and the vitrine. Imports preserve the same
-remote objects. Review their full plan together with ordinary resource changes:
+`imports.tf` adopts the existing core, Android and vitrine repositories, the
+vitrine's security settings, the existing bot team, and its access to `.github`
+and the vitrine. Imports preserve the same remote objects. Review their full
+plan together with ordinary resource changes:
 
 ```bash
 terraform init
