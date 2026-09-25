@@ -219,6 +219,19 @@ resource "github_team_repository" "bots_ottplay_swop" {
   permission = "push"
 }
 
+# Shared-core delivery creates artifact update branches and pull requests.
+resource "github_team_repository" "bots_ottplay_core" {
+  team_id    = github_team.bots.id
+  repository = github_repository.ottplay_core.name
+  permission = "push"
+}
+
+resource "github_team_repository" "bots_ottplay_android" {
+  team_id    = github_team.bots.id
+  repository = github_repository.ottplay_android.name
+  permission = "push"
+}
+
 # terraform-github-open-ott-play lives under the 4alvit personal account
 # (transferred out of the org) — managed outside this module.
 # (State entries for it were dropped during the transfer migration.)
