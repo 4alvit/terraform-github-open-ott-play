@@ -1,5 +1,5 @@
 output "repositories" {
-  description = "Created repositories"
+  description = "Managed repositories"
   value = {
     profile = {
       name     = github_repository.profile.name
@@ -10,6 +10,16 @@ output "repositories" {
       name     = github_repository.ottplay_foss.name
       html_url = github_repository.ottplay_foss.html_url
       ssh_url  = github_repository.ottplay_foss.ssh_clone_url
+    }
+    ottplay_core = {
+      name     = github_repository.ottplay_core.name
+      html_url = github_repository.ottplay_core.html_url
+      ssh_url  = github_repository.ottplay_core.ssh_clone_url
+    }
+    ottplay_android = {
+      name     = github_repository.ottplay_android.name
+      html_url = github_repository.ottplay_android.html_url
+      ssh_url  = github_repository.ottplay_android.ssh_clone_url
     }
     ottplay_swop = {
       name     = github_repository.ottplay_swop.name
