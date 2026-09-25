@@ -49,6 +49,10 @@ Set these in Terraform Cloud workspace variables (not in git):
 are not recreated or stored in Terraform; signing remains a main-only manual
 GitHub Actions workflow with secrets held separately from the published source.
 
+The existing `bots` team has `push` access to `ottplay-core` and `ottplay-android`
+to create shared-core artifact update branches and pull requests. This uses the
+same team access model as FOSS and SWOP.
+
 ### Security
 
 Separate security resources cover the profile, FOSS, SWOP, vitrine and archived
