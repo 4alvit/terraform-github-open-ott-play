@@ -39,7 +39,6 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `ottplay-android` — public native Android and Android TV application
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
-- `foss-cloudflare-infrastructure` — archived Terraform for Cloudflare Zero Trust; kept archived
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
@@ -55,17 +54,21 @@ same team access model as FOSS and SWOP.
 
 ### Security
 
-Separate security resources cover the profile, FOSS, SWOP, vitrine and archived
-infrastructure repositories:
+Separate security resources cover the profile, FOSS, SWOP and vitrine
+repositories:
 
 - Vulnerability alerts (`github_repository_vulnerability_alerts`)
 - Dependabot security updates (`github_repository_dependabot_security_updates`)
 
-The archived infrastructure repository has no active vulnerability-alert resource:
-GitHub disables alerts on archives, and the provider cannot refresh that resource.
-Its obsolete state entry is forgotten with `destroy = false`; the repository,
-ruleset and bot access remain represented. The vitrine's existing disabled
-Dependabot security updates are preserved.
+The retired `foss-cloudflare-infrastructure` repository and its old security,
+ruleset and bot-access bindings are forgotten with `destroy = false`, before
+explicit deletion of the archived repository through GitHub. This avoids API
+writes to read-only archived child resources and prevents Terraform from
+recreating the repository. Its maintained Terraform implementation lives in
+[`victron-venus/terraform-cloudflare-inverter-gateway`](https://github.com/victron-venus/terraform-cloudflare-inverter-gateway);
+production Access applications, policies and tunnel routes are managed in
+[`4alvit/terraform-cloudflare-alvit`](https://github.com/4alvit/terraform-cloudflare-alvit).
+The vitrine's existing disabled Dependabot security updates are preserved.
 
 ### Branch Protection Rulesets
 
@@ -76,7 +79,6 @@ Per-repo `Default` rulesets on `~DEFAULT_BRANCH` (admin bypass role id 5):
 | `.github` | Signatures, PR reviews, CodeQL `errors` / `high_or_higher` |
 | `ottplay-foss` | Signatures, PR reviews, CodeQL `none` / `none`, **required check**: canonical `CI gate` (GitHub Actions app 15368) |
 | `ottplay-swop` | Signatures, PR reviews, CodeQL `none` / `none` (add CI contexts later when workflows exist) |
-| `foss-cloudflare-infrastructure` | Signatures, PR reviews, CodeQL `none` / `none` |
 
 The FOSS `CI gate` requires all configured validators for code changes and accepts
 only explicitly proven documentation-only skips. Its CodeQL validator still runs
