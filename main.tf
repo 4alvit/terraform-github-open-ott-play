@@ -110,38 +110,19 @@ resource "github_repository_dependabot_security_updates" "ottplay_foss" {
 # Cloudflare account / Worker / KV IDs and tokens are NOT managed here;
 # they live in the app repo's Wrangler config (examples only, no secrets in git).
 
-# Generic Cloudflare / Zero Trust IaC (Access apps, service tokens, tunnel notes).
-# Secrets stay in the app repo's gitignored local.secrets.tfvars — not here.
-resource "github_repository" "foss_cloudflare_infrastructure" {
-  name        = "foss-cloudflare-infrastructure"
-  description = "Terraform for Cloudflare Zero Trust (Access apps, policies, service tokens) with local-only secrets"
-  visibility  = "public"
-  archived    = true
+# Retired on 2026-10-03 after comparing every source file with the maintained
+# victron-venus/terraform-cloudflare-inverter-gateway repository and verifying
+# the production Access application, policies and tunnel route in
+# 4alvit/terraform-cloudflare-alvit. Forget these bindings before deleting the
+# archived repository through GitHub; do not mutate its archived child resources.
+removed {
+  from = github_repository.foss_cloudflare_infrastructure
 
-  has_issues      = true
-  has_projects    = false
-  has_wiki        = false
-  has_discussions = false
-
-  allow_merge_commit     = true
-  allow_squash_merge     = true
-  allow_rebase_merge     = true
-  allow_auto_merge       = true
-  delete_branch_on_merge = true
-
-  topics = [
-    "cloudflare",
-    "zero-trust",
-    "terraform",
-    "access",
-    "infrastructure-as-code",
-  ]
-
-  license_template = "mit"
+  lifecycle {
+    destroy = false
+  }
 }
 
-# GitHub disables vulnerability alerts for archived repositories and the provider
-# rejects reading this legacy resource. Keep the archive itself under management.
 removed {
   from = github_repository_vulnerability_alerts.foss_cloudflare_infrastructure
 
@@ -150,15 +131,28 @@ removed {
   }
 }
 
-resource "github_repository_dependabot_security_updates" "foss_cloudflare_infrastructure" {
-  repository = github_repository.foss_cloudflare_infrastructure.id
-  enabled    = false
+removed {
+  from = github_repository_dependabot_security_updates.foss_cloudflare_infrastructure
+
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "github_team_repository" "bots_foss_cloudflare_infrastructure" {
-  team_id    = github_team.bots.id
-  repository = github_repository.foss_cloudflare_infrastructure.name
-  permission = "push"
+removed {
+  from = github_team_repository.bots_foss_cloudflare_infrastructure
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = github_repository_ruleset.foss_cloudflare_infrastructure
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 resource "github_repository" "ottplay_swop" {
@@ -411,54 +405,6 @@ resource "github_repository_ruleset" "ottplay_swop" {
   }
 }
 
-
-resource "github_repository_ruleset" "foss_cloudflare_infrastructure" {
-  name        = "Default"
-  repository  = github_repository.foss_cloudflare_infrastructure.name
-  target      = "branch"
-  enforcement = "active"
-
-  bypass_actors {
-    actor_id    = 5
-    actor_type  = "RepositoryRole"
-    bypass_mode = "always"
-  }
-
-  conditions {
-    ref_name {
-      include = ["~DEFAULT_BRANCH"]
-      exclude = []
-    }
-  }
-
-  rules {
-    deletion            = true
-    non_fast_forward    = true
-    required_signatures = true
-
-    copilot_code_review {
-      review_draft_pull_requests = true
-      review_on_push             = true
-    }
-
-    pull_request {
-      allowed_merge_methods             = ["merge", "squash", "rebase"]
-      dismiss_stale_reviews_on_push     = false
-      require_code_owner_review         = true
-      require_last_push_approval        = true
-      required_approving_review_count   = 1
-      required_review_thread_resolution = true
-    }
-
-    required_code_scanning {
-      required_code_scanning_tool {
-        alerts_threshold          = "none"
-        security_alerts_threshold = "none"
-        tool                      = "CodeQL"
-      }
-    }
-  }
-}
 
 # Extend the existing bot team's approved access to these existing repositories.
 resource "github_team_repository" "bots_profile" {

@@ -16,6 +16,27 @@ from pathlib import Path
 import yaml
 
 
+def validate_immutable_actions(workflows):
+    """Require immutable external references even without a generator manifest."""
+    for filename, workflow in workflows.items():
+        for job in workflow.get("jobs", {}).values():
+            references = [job.get("uses")] + [
+                step.get("uses") for step in job.get("steps", [])
+            ]
+            for reference in references:
+                if reference is None:
+                    continue
+                if isinstance(reference, str) and reference.startswith("./"):
+                    continue
+                pattern = (
+                    r"docker://[^@\s]+@sha256:[0-9a-f]{64}"
+                    if isinstance(reference, str) and reference.startswith("docker://")
+                    else r"[^@\s]+@[0-9a-f]{40}"
+                )
+                if not isinstance(reference, str) or not re.fullmatch(pattern, reference):
+                    raise ValueError(f"{filename}: external uses must have an immutable SHA")
+
+
 def validate_codeql(workflows):
     """All CodeQL components in the repository share one immutable release."""
     repository_pins = set()
@@ -108,6 +129,7 @@ def validate(directory: Path, *, actions_only=False) -> None:
         path.name: yaml.load(path.read_text(), Loader=yaml.BaseLoader)  # nosec B506
         for path in (directory / ".github/workflows").glob("*.y*ml")
     }
+    validate_immutable_actions(workflows)
     validate_codeql(workflows)
     validate_generator_pins(directory, workflows)
     if actions_only:
