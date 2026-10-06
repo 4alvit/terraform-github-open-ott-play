@@ -66,8 +66,9 @@ explicit deletion of the archived repository through GitHub. This avoids API
 writes to read-only archived child resources and prevents Terraform from
 recreating the repository. Its maintained Terraform implementation lives in
 [`victron-venus/terraform-cloudflare-inverter-gateway`](https://github.com/victron-venus/terraform-cloudflare-inverter-gateway);
-production Access applications, policies and tunnel routes are managed in
-[`4alvit/terraform-cloudflare-alvit`](https://github.com/4alvit/terraform-cloudflare-alvit).
+production Access applications, policies and tunnel routes have a separate
+operator-managed infrastructure owner. Applying this GitHub configuration does
+not deploy those services.
 The vitrine's existing disabled Dependabot security updates are preserved.
 
 ### Branch Protection Rulesets
