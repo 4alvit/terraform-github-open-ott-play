@@ -13,6 +13,9 @@
 - Validate the public policy with an offline mocked provider and scan Terraform
   with the pinned TFLint ruleset.
 
+- Pin GitHub provider 6.13.0 and verified platform hashes in version control;
+  schema validation and offline policy tests use the lock file read-only.
+
 ### Upgrade
 
 This is Terraform source, not an applied plan or a deployment. Use the versions

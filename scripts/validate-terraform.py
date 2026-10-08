@@ -68,7 +68,7 @@ def validate_roots(stage, roots, temporary):
         print(f"Validating Terraform root: {relative}", flush=True)
         for command in (
             ["terraform", "fmt", "-check", "-recursive"],
-            ["terraform", "init", "-backend=false", "-input=false", "-no-color"],
+            ["terraform", "init", "-backend=false", "-input=false", "-lockfile=readonly", "-no-color"],
             ["terraform", "validate", "-no-color"],
         ):
             subprocess.run(command, cwd=directory, env=environment, check=True)

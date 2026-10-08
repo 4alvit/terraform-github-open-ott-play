@@ -62,3 +62,12 @@ source and application of a state-aware infrastructure plan.
 The `.bestpractices.json` file records evidence for an OpenSSF Best Practices
 self-assessment. Unknown and unmet fields remain visible; the file is not an
 awarded badge or an independent security certification.
+
+## Provider dependency lock
+
+Commit `.terraform.lock.hcl` with every reviewed provider update. Normal schema
+validation and offline policy tests use `-lockfile=readonly`, so a build cannot
+silently select another provider version. Update and review the lock explicitly
+with `terraform providers lock -platform=linux_amd64 -platform=darwin_arm64`;
+provider upgrades additionally require an explicit dependency update and the
+full validation suite. The lock records verified checksums, not credentials.
