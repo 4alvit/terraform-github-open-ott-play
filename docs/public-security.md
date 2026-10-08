@@ -2,11 +2,11 @@
 
 `public-security.tf` lists the public repositories reviewed for this rollout.
 Live metadata excludes private and archived repositories from new protections.
-Existing public review rules require two approving reviews, dismiss stale
-approvals and require resolution of review threads. Administrator and automation
-bypass actors are removed for this scope. Missing review rules are added without
-replacing existing status checks or immutable-tag rules. Existing release CI
-gates require success for administrators as well as other contributors.
+The committed configuration also contains a proposed broader policy: two
+approving reviews, removal of administrator/automation bypasses and new review
+rules. Those source settings do not establish that they have been applied, and
+they are not selected by the incremental rollout below. Existing checks,
+signatures and immutable-tag protections remain separate requirements.
 
 Secret scanning and push protection are enabled on the audited public repository
 resources managed by this state. Private vulnerability reporting was enabled
@@ -16,17 +16,27 @@ onboarding. Do not put a credential in a commit to test push protection.
 
 ## Rollout and state ownership
 
-Merge the application repair PRs after their required checks succeed, then
-reconcile this desired configuration with the canonical state. Do not perform a
-fleet-wide apply from an empty or unrelated state. If a rule was created through
-the API, import its actual repository/ruleset identity at the declared address
-before applying; do not create a duplicate rule. For out-of-band setting changes,
-refresh and inspect the plan to verify the source preserves them.
+The selected incremental change enables `dismiss_stale_reviews_on_push` on
+existing default-branch pull-request rules while preserving their required
+approval counts, bypass actors, Code Owners and CI/scanning requirements. It
+creates no rulesets and imports no resources. This source change also covers
+`github_repository_ruleset.profile` for `open-ott-play/.github`, whose previous source would
+otherwise restore stale-approval dismissal to `false`.
 
-Two required reviews are an ongoing maintenance requirement. Automation approvals
-are not evidence of an independent human security review. Do not weaken the rule
-or grant a new collaborator access merely to make an old PR mergeable. Check
-whether existing permitted maintainers can complete the reviews before activation.
+A broad Terraform apply remains deferred: other committed review-count and
+bypass settings differ from the selected live policy. Inspect those differences
+against the canonical existing state and reconcile them in a separate reviewed
+change before any broader apply. Do not apply from empty or unrelated state.
+For each selected setting update, compare the complete current ruleset with its
+reviewed baseline, save the previous body and read back the result. Complete
+active code PRs before enabling the new dismissal requirement for their
+repository.
+
+Check that the existing permitted reviewers can satisfy the chosen policy;
+automation approvals do not establish independent human security review. A
+higher review count is not selected merely to maximize a score. Any future new
+ruleset must preserve existing protections and use its actual remote identity
+when imported into the owning state.
 
 ## Trust boundaries
 
