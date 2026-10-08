@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Terraform configs have no compiled language; analyze the Actions workflows
-        language: ["actions"]
+        # Analyze workflow definitions and the Python validation/release helpers.
+        language: ["actions", "python"]
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -28,6 +28,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
