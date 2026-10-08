@@ -73,6 +73,18 @@ resource "github_repository_dependabot_security_updates" "profile" {
 }
 
 resource "github_repository" "ottplay_foss" {
+  dynamic "security_and_analysis" {
+    for_each = contains(local.active_public_software_repositories, "ottplay-foss") ? [true] : []
+    content {
+      secret_scanning {
+        status = "enabled"
+      }
+      secret_scanning_push_protection {
+        status = "enabled"
+      }
+    }
+  }
+
   name        = "ottplay-foss"
   description = "IPTV/OTT set-top-box player — HLS/DASH playback, EPG, M3U/Xtream/Stalker providers, webhook push commands"
   visibility  = "public"
@@ -156,6 +168,18 @@ removed {
 }
 
 resource "github_repository" "ottplay_swop" {
+  dynamic "security_and_analysis" {
+    for_each = contains(local.active_public_software_repositories, "ottplay-swop") ? [true] : []
+    content {
+      secret_scanning {
+        status = "enabled"
+      }
+      secret_scanning_push_protection {
+        status = "enabled"
+      }
+    }
+  }
+
   name        = "ottplay-swop"
   description = "Ephemeral remote text entry for ottplay-foss (TV↔phone) — Cloudflare Worker + KV session/poll API"
   visibility  = "public"
@@ -301,12 +325,6 @@ resource "github_repository_ruleset" "ottplay_foss" {
   target      = "branch"
   enforcement = "active"
 
-  bypass_actors {
-    actor_id    = 5
-    actor_type  = "RepositoryRole"
-    bypass_mode = "always"
-  }
-
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]
@@ -326,10 +344,10 @@ resource "github_repository_ruleset" "ottplay_foss" {
 
     pull_request {
       allowed_merge_methods             = ["merge", "squash", "rebase"]
-      dismiss_stale_reviews_on_push     = false
+      dismiss_stale_reviews_on_push     = true
       require_code_owner_review         = true
       require_last_push_approval        = true
-      required_approving_review_count   = 1
+      required_approving_review_count   = 2
       required_review_thread_resolution = true
       # Note: GitHub API also has require_extra_approval_for_unattributed_changes;
       # the Terraform github provider (~> 6) does not expose that field yet.
@@ -363,12 +381,6 @@ resource "github_repository_ruleset" "ottplay_swop" {
   target      = "branch"
   enforcement = "active"
 
-  bypass_actors {
-    actor_id    = 5
-    actor_type  = "RepositoryRole"
-    bypass_mode = "always"
-  }
-
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]
@@ -388,10 +400,10 @@ resource "github_repository_ruleset" "ottplay_swop" {
 
     pull_request {
       allowed_merge_methods             = ["merge", "squash", "rebase"]
-      dismiss_stale_reviews_on_push     = false
+      dismiss_stale_reviews_on_push     = true
       require_code_owner_review         = true
       require_last_push_approval        = true
-      required_approving_review_count   = 1
+      required_approving_review_count   = 2
       required_review_thread_resolution = true
     }
 
@@ -404,7 +416,6 @@ resource "github_repository_ruleset" "ottplay_swop" {
     }
   }
 }
-
 
 # Extend the existing bot team's approved access to these existing repositories.
 resource "github_team_repository" "bots_profile" {

@@ -10,6 +10,8 @@ variable "github_token" {
   sensitive   = true
 }
 
+# Retained input for existing workspace compatibility; it does not grant access or create resources.
+# tflint-ignore: terraform_unused_declarations
 variable "billing_email" {
   description = "Organization billing email"
   type        = string

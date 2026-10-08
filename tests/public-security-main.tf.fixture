@@ -8,8 +8,6 @@ terraform {
   }
 }
 
-# Fixture inputs are consumed when release policy source is copied into the test root.
-# tflint-ignore: terraform_unused_declarations
 variable "github_organization" {
   type    = string
   default = "release-contract-fixture"
