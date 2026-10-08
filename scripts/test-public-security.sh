@@ -16,5 +16,5 @@ test_terraform() {
     TF_CLI_CONFIG_FILE="$temporary/empty.tfrc" TF_PLUGIN_CACHE_DIR="$temporary/provider-cache" \
     terraform -chdir="$temporary" "$@"
 }
-test_terraform init -backend=false -input=false -no-color
+test_terraform init -backend=false -input=false -lockfile=readonly -no-color
 test_terraform test -no-color

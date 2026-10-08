@@ -45,3 +45,29 @@ Preserve existing resource identities when importing or changing configuration.
 See [README.md](README.md) for configuration inputs and operating instructions,
 [public software policy](docs/public-security.md) for this rollout, and
 [LICENSE](LICENSE) for the contribution license.
+
+## Versioned source releases
+
+Published source releases use unique `vMAJOR.MINOR.PATCH` Git tags and GitHub
+Releases. Follow semantic versioning: document incompatible configuration or
+state migration changes explicitly; during `0.x` development, incompatible
+changes increase the minor version. Never move an existing published tag.
+
+Before publishing, validate the exact source tree, add its Changes, Upgrade and
+Security sections to CHANGELOG.md, and copy that version's human-readable notes
+into its GitHub Release. Include affected versions and advisory identifiers for
+security fixes when available. Preserve the distinction between validation of
+source and application of a state-aware infrastructure plan.
+
+The `.bestpractices.json` file records evidence for an OpenSSF Best Practices
+self-assessment. Unknown and unmet fields remain visible; the file is not an
+awarded badge or an independent security certification.
+
+## Provider dependency lock
+
+Commit `.terraform.lock.hcl` with every reviewed provider update. Normal schema
+validation and offline policy tests use `-lockfile=readonly`, so a build cannot
+silently select another provider version. Update and review the lock explicitly
+with `terraform providers lock -platform=linux_amd64 -platform=darwin_arm64`;
+provider upgrades additionally require an explicit dependency update and the
+full validation suite. The lock records verified checksums, not credentials.
