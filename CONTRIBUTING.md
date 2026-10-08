@@ -8,7 +8,7 @@ expected and actual behavior, and redacted reproduction steps. Use
 
 ## Validate a change
 
-Use Terraform 1.15.7, TFLint 0.64.0 and actionlint 1.7.12. For repositories with `scripts/ci.sh`,
+Use Terraform 1.16.5, TFLint 0.64.0 and actionlint 1.7.12. For repositories with `scripts/ci.sh`,
 run `bash scripts/ci.sh` to check source, provider schemas and offline policy
 contracts. In this repository, the public policy suite can also be run directly:
 
