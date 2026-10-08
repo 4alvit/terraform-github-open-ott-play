@@ -205,3 +205,14 @@ run "token_defaults_preserve_actions_approval" {
     error_message = "Read-only defaults must preserve official Dependabot approval through Actions."
   }
 }
+
+run "audited_public_ci_has_no_bypass" {
+  command = plan
+  variables {
+    release_gate_repositories = ["ottplay-android"]
+  }
+  assert {
+    condition     = length(github_repository_ruleset.release_quality_gate["ottplay-android"].bypass_actors) == 0
+    error_message = "Audited public CI cannot be bypassed by administrators."
+  }
+}

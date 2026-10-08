@@ -94,10 +94,10 @@ resource "github_repository_ruleset" "release_quality_gate" {
   repository  = each.value
   target      = "branch"
   enforcement = "active"
-  # Administrators can explicitly override CI for a reviewed pull request.
-  # Direct pushes and immutable release tags do not receive this bypass.
+  # Audited public software requires successful CI even for administrators.
+  # Preserve pre-existing behavior for repositories outside this rollout.
   dynamic "bypass_actors" {
-    for_each = data.github_repository.release_standard[each.key].archived ? [] : [true]
+    for_each = (data.github_repository.release_standard[each.key].archived || contains(local.active_public_software_repositories, each.key)) ? [] : [true]
     content {
       actor_id    = 5
       actor_type  = "RepositoryRole"

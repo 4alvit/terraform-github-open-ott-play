@@ -1,6 +1,18 @@
 # Adopt the existing repositories without recreating their history or releases.
 # Preserve their current repository preferences while publishing the source.
 resource "github_repository" "ottplay_core" {
+  dynamic "security_and_analysis" {
+    for_each = contains(local.active_public_software_repositories, "ottplay-core") ? [true] : []
+    content {
+      secret_scanning {
+        status = "enabled"
+      }
+      secret_scanning_push_protection {
+        status = "enabled"
+      }
+    }
+  }
+
   name        = "ottplay-core"
   description = "Canonical shared OttPlay core, independent ES5 client and migration verification"
   visibility  = "public"
@@ -29,6 +41,18 @@ resource "github_repository" "ottplay_core" {
 }
 
 resource "github_repository" "ottplay_android" {
+  dynamic "security_and_analysis" {
+    for_each = contains(local.active_public_software_repositories, "ottplay-android") ? [true] : []
+    content {
+      secret_scanning {
+        status = "enabled"
+      }
+      secret_scanning_push_protection {
+        status = "enabled"
+      }
+    }
+  }
+
   name        = "ottplay-android"
   description = "Native Android and Android TV IPTV application built with Kotlin, Jetpack Compose and Media3"
   visibility  = "public"

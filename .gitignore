@@ -14,3 +14,7 @@ logs/
 
 # Reviewed non-secret public release desired state.
 !release-activation.auto.tfvars.json
+
+# Local Python validation artifacts.
+__pycache__/
+*.py[cod]
