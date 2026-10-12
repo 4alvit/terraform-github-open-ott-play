@@ -52,7 +52,8 @@ with `--owner OWNER` to inspect that owner's rules. Use `--apply --backup-dir DI
 to save the current bodies, change only review counts above one and the extra
 approval flag, and verify that all other protections remain intact. Choose a new
 local backup directory for each application. Rules without required approvals
-keep their zero count. This step is required until the provider supports the
+keep their zero count; archived repositories stay read-only and are reported.
+This step is required until the provider supports the
 extra-approval field; a Terraform plan alone cannot validate it.
 
 ## Trust boundaries
