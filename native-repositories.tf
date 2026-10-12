@@ -25,7 +25,7 @@ resource "github_repository" "ottplay_core" {
   allow_merge_commit          = true
   allow_squash_merge          = true
   allow_rebase_merge          = true
-  allow_auto_merge            = false
+  allow_auto_merge            = true
   allow_update_branch         = false
   delete_branch_on_merge      = false
   web_commit_signoff_required = false

@@ -49,7 +49,8 @@ are not recreated or stored in Terraform; signing remains a main-only manual
 GitHub Actions workflow with secrets held separately from the published source.
 
 The existing `bots` team has `push` access to `ottplay-core` and `ottplay-android`
-to create shared-core artifact update branches and pull requests. This uses the
+to create shared-core artifact update branches and pull requests. These existing
+grants are imported, and the core repository's enabled auto-merge is preserved. This uses the
 same team access model as FOSS and SWOP.
 
 ### Security
@@ -89,7 +90,10 @@ GitHub omits them when the reusable workflow is intentionally skipped.
 Public repositories listed in `release_gate_repositories` also have the additive
 release CI gate. Repository
 administrators (role ID 5) can explicitly bypass it when merging a pull request;
-normal merges still require successful strict CI. This `pull_request` grant
+normal merges still require successful strict CI. Removal of existing
+administrator exceptions and new public review rules are deferred until the
+repository is explicitly added to `public_security_enforcement_repositories`.
+The default empty set preserves the existing policy. This `pull_request` grant
 does not allow direct pushes and is not added to archived repositories. The
 separate `Default` review rules and release-environment approval policies retain
 their existing settings. Immutable release tags have no bypass.
@@ -113,8 +117,8 @@ same canonical state. Do not detach it, copy state into a second owner, or hide
 differences with `ignore_changes`.
 
 `imports.tf` adopts the existing core, Android and vitrine repositories, the
-vitrine's security settings, the existing bot team, and its access to `.github`
-and the vitrine. Imports preserve the same remote objects. Review their full
+vitrine's security settings, the existing bot team, and its access to `.github`,
+core, Android and the vitrine. Imports preserve the same remote objects. Review their full
 plan together with ordinary resource changes:
 
 ```bash
