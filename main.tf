@@ -347,10 +347,10 @@ resource "github_repository_ruleset" "ottplay_foss" {
       dismiss_stale_reviews_on_push     = true
       require_code_owner_review         = true
       require_last_push_approval        = true
-      required_approving_review_count   = 2
+      required_approving_review_count   = 1
       required_review_thread_resolution = true
-      # Note: GitHub API also has require_extra_approval_for_unattributed_changes;
-      # the Terraform github provider (~> 6) does not expose that field yet.
+      # The extra Copilot approval is disabled through the reconciliation script;
+      # this provider does not expose that API field. See docs/public-security.md.
     }
 
     # Match live ottplay-foss: CodeQL present but not blocking on thresholds.
@@ -403,7 +403,7 @@ resource "github_repository_ruleset" "ottplay_swop" {
       dismiss_stale_reviews_on_push     = true
       require_code_owner_review         = true
       require_last_push_approval        = true
-      required_approving_review_count   = 2
+      required_approving_review_count   = 1
       required_review_thread_resolution = true
     }
 

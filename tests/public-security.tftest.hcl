@@ -8,13 +8,13 @@ mock_provider "github" {
   }
 }
 
-run "review_requires_two_current_approvals_without_bypass" {
+run "review_requires_one_current_approval_without_bypass" {
   command = plan
   assert {
     condition = alltrue([
       for policy in github_repository_ruleset.public_review : (
         length(policy.bypass_actors) == 0 &&
-        one(one(policy.rules).pull_request).required_approving_review_count == 2 &&
+        one(one(policy.rules).pull_request).required_approving_review_count == 1 &&
         one(one(policy.rules).pull_request).dismiss_stale_reviews_on_push &&
         one(one(policy.rules).pull_request).require_last_push_approval &&
         one(one(policy.rules).pull_request).required_review_thread_resolution

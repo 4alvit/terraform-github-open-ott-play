@@ -2,11 +2,12 @@
 
 `public-security.tf` lists the public repositories reviewed for this rollout.
 Live metadata excludes private and archived repositories from new protections.
-The committed configuration also contains a proposed broader policy: two
-approving reviews, removal of administrator/automation bypasses and new review
-rules. Those source settings do not establish that they have been applied, and
-they are not selected by the incremental rollout below. Existing checks,
-signatures and immutable-tag protections remain separate requirements.
+The required review count is one approval from a reviewer with Write access.
+Automation may provide that approval. Keep this count at one when reconciling
+Terraform with GitHub. Other committed proposals, including changes to bypass
+actors and new review rules, still need separate review before a broad apply.
+Existing checks, signatures and immutable-tag protections remain separate
+requirements.
 
 Secret scanning and push protection are enabled on the audited public repository
 resources managed by this state. Private vulnerability reporting was enabled
@@ -17,14 +18,14 @@ onboarding. Do not put a credential in a commit to test push protection.
 ## Rollout and state ownership
 
 The selected incremental change enables `dismiss_stale_reviews_on_push` on
-existing default-branch pull-request rules while preserving their required
-approval counts, bypass actors, Code Owners and CI/scanning requirements. It
+existing default-branch pull-request rules with a single required
+approval, preserving bypass actors, Code Owners and CI/scanning requirements. It
 creates no rulesets and imports no resources. This source change also covers
 `github_repository_ruleset.profile` for `open-ott-play/.github`, whose previous source would
 otherwise restore stale-approval dismissal to `false`.
 
-A broad Terraform apply remains deferred: other committed review-count and
-bypass settings differ from the selected live policy. Inspect those differences
+A broad Terraform apply remains deferred: other committed bypass settings and
+new rules still differ from the selected live policy. Inspect those differences
 against the canonical existing state and reconcile them in a separate reviewed
 change before any broader apply. Do not apply from empty or unrelated state.
 For each selected setting update, compare the complete current ruleset with its
@@ -37,6 +38,23 @@ automation approvals do not establish independent human security review. A
 higher review count is not selected merely to maximize a score. Any future new
 ruleset must preserve existing protections and use its actual remote identity
 when imported into the owning state.
+
+## Extra Copilot approval after Terraform
+
+GitHub's `require_extra_approval_for_unattributed_changes` setting must be
+`false`: otherwise an unattributed Copilot PR needs an extra approval even when
+the configured count is one. The pinned GitHub provider does not expose this
+field, and sending a ruleset without it restores GitHub's default `true`.
+
+After a ruleset apply or creation, run the shared
+[review-policy reconciliation script](https://github.com/4alvit/terraform-github-4alvit/blob/main/scripts/reconcile-review-policy.py)
+with `--owner OWNER` to inspect that owner's rules. Use `--apply --backup-dir DIR`
+to save the current bodies, change only review counts above one and the extra
+approval flag, and verify that all other protections remain intact. Choose a new
+local backup directory for each application. Rules without required approvals
+keep their zero count; archived repositories stay read-only and are reported.
+This step is required until the provider supports the
+extra-approval field; a Terraform plan alone cannot validate it.
 
 ## Trust boundaries
 
