@@ -325,6 +325,16 @@ resource "github_repository_ruleset" "ottplay_foss" {
   target      = "branch"
   enforcement = "active"
 
+  # Preserve the existing administrator exception until its rollout is selected.
+  dynamic "bypass_actors" {
+    for_each = contains(local.enforced_public_security_repositories, "ottplay-foss") ? [] : [true]
+    content {
+      actor_id    = 5
+      actor_type  = "RepositoryRole"
+      bypass_mode = "always"
+    }
+  }
+
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]
@@ -380,6 +390,16 @@ resource "github_repository_ruleset" "ottplay_swop" {
   repository  = github_repository.ottplay_swop.name
   target      = "branch"
   enforcement = "active"
+
+  # Preserve the existing administrator exception until its rollout is selected.
+  dynamic "bypass_actors" {
+    for_each = contains(local.enforced_public_security_repositories, "ottplay-swop") ? [] : [true]
+    content {
+      actor_id    = 5
+      actor_type  = "RepositoryRole"
+      bypass_mode = "always"
+    }
+  }
 
   conditions {
     ref_name {
