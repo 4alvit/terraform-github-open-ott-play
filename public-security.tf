@@ -48,7 +48,7 @@ resource "github_repository_ruleset" "public_review" {
     deletion         = true
     non_fast_forward = true
     pull_request {
-      required_approving_review_count   = 2
+      required_approving_review_count   = 1
       dismiss_stale_reviews_on_push     = true
       require_last_push_approval        = true
       required_review_thread_resolution = true
