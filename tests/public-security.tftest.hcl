@@ -8,8 +8,23 @@ mock_provider "github" {
   }
 }
 
+run "new_review_rules_require_explicit_rollout" {
+  command = plan
+  assert {
+    condition     = length(github_repository_ruleset.public_review) == 0
+    error_message = "State reconciliation must not enable unselected review requirements."
+  }
+}
+
 run "review_requires_one_current_approval_without_bypass" {
   command = plan
+  variables {
+    public_security_enforcement_repositories = ["ottplay-android", "ottplay-core", "ottplay-web-vitrine"]
+  }
+  assert {
+    condition     = length(github_repository_ruleset.public_review) == 3
+    error_message = "Explicit rollout must activate each selected eligible review rule."
+  }
   assert {
     condition = alltrue([
       for policy in github_repository_ruleset.public_review : (
@@ -26,6 +41,9 @@ run "review_requires_one_current_approval_without_bypass" {
 
 run "private_repository_is_excluded" {
   command = plan
+  variables {
+    public_security_enforcement_repositories = ["ottplay-android"]
+  }
   override_data {
     target = data.github_repository.public_software["ottplay-android"]
     values = {
@@ -41,6 +59,9 @@ run "private_repository_is_excluded" {
 
 run "archived_repository_is_excluded" {
   command = plan
+  variables {
+    public_security_enforcement_repositories = ["ottplay-android"]
+  }
   override_data {
     target = data.github_repository.public_software["ottplay-android"]
     values = {

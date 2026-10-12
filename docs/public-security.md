@@ -4,8 +4,9 @@
 Live metadata excludes private and archived repositories from new protections.
 The required review count is one approval from a reviewer with Write access.
 Automation may provide that approval. Keep this count at one when reconciling
-Terraform with GitHub. Other committed proposals, including changes to bypass
-actors and new review rules, still need separate review before a broad apply.
+Terraform with GitHub. New review rules and removal of existing administrator
+exceptions require explicit membership in
+`public_security_enforcement_repositories`, which is empty by default.
 Existing checks, signatures and immutable-tag protections remain separate
 requirements.
 
@@ -18,16 +19,25 @@ onboarding. Do not put a credential in a commit to test push protection.
 ## Rollout and state ownership
 
 The selected incremental change enables `dismiss_stale_reviews_on_push` on
-existing default-branch pull-request rules with a single required
-approval, preserving bypass actors, Code Owners and CI/scanning requirements. It
-creates no rulesets and imports no resources. This source change also covers
-`github_repository_ruleset.profile` for `open-ott-play/.github`, whose previous source would
-otherwise restore stale-approval dismissal to `false`.
+existing default-branch pull-request rules with a single required approval,
+preserving bypass actors, Code Owners and CI/scanning requirements. The profile
+CI gate is bound to the GitHub Actions app that publishes it.
 
-A broad Terraform apply remains deferred: other committed bypass settings and
-new rules still differ from the selected live policy. Inspect those differences
-against the canonical existing state and reconcile them in a separate reviewed
-change before any broader apply. Do not apply from empty or unrelated state.
+State adoption imports existing workflow permissions and bot-team grants. It
+preserves the core repository's enabled auto-merge. No new review rules or
+administrator-bypass removals are activated by this reconciliation.
+
+Before adding a repository to `public_security_enforcement_repositories`, verify
+its required checks and permitted reviewers, including auto-approval if the
+repository uses it. The core and Android repositories do not yet have the same
+auto-approval workflows as FOSS and SWOP; merely importing their existing bot
+access must not impose a new review blocker. The vitrine's new review rule is
+also deferred to the explicit rollout. Existing protected repositories retain
+their current policies until individually selected.
+
+Review every full plan against the canonical existing state; do not apply from
+empty or unrelated state. Imports must use the actual remote identities, and
+an unrestricted post-apply plan must report no changes.
 For each selected setting update, compare the complete current ruleset with its
 reviewed baseline, save the previous body and read back the result. Complete
 active code PRs before enabling the new dismissal requirement for their

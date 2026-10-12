@@ -1,3 +1,11 @@
+# Stronger review enforcement is staged until each repository's approval and CI
+# automation has been verified. State reconciliation alone must not activate it.
+variable "public_security_enforcement_repositories" {
+  description = "Audited public repositories explicitly enabled for new review rules and removal of existing administrator bypasses"
+  type        = set(string)
+  default     = []
+}
+
 # Public software explicitly audited for the OpenSSF rollout. Private and archived
 # repositories are excluded using live visibility before new rules are created.
 locals {
@@ -28,11 +36,18 @@ locals {
   ])
 }
 
+locals {
+  enforced_public_security_repositories = setintersection(
+    var.public_security_enforcement_repositories,
+    local.active_public_software_repositories,
+  )
+}
+
 resource "github_repository_ruleset" "public_review" {
-  for_each = toset([
-    for repo in local.public_missing_review_repositories : repo
-    if data.github_repository.public_software[repo].visibility == "public" && !data.github_repository.public_software[repo].archived
-  ])
+  for_each = setintersection(
+    local.public_missing_review_repositories,
+    local.enforced_public_security_repositories,
+  )
   name        = "Public software - required review"
   repository  = each.value
   target      = "branch"

@@ -39,3 +39,14 @@ import {
   to = github_team_repository.bots_ottplay_web_vitrine
   id = "19138503:ottplay-web-vitrine"
 }
+
+# Existing bot team grants; adopt them without writing duplicate access bindings.
+import {
+  to = github_team_repository.bots_ottplay_core
+  id = "19138503:ottplay-core"
+}
+
+import {
+  to = github_team_repository.bots_ottplay_android
+  id = "19138503:ottplay-android"
+}

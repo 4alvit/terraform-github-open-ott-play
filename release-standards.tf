@@ -94,10 +94,10 @@ resource "github_repository_ruleset" "release_quality_gate" {
   repository  = each.value
   target      = "branch"
   enforcement = "active"
-  # Audited public software requires successful CI even for administrators.
-  # Preserve pre-existing behavior for repositories outside this rollout.
+  # Remove existing administrator exceptions only after explicit rollout.
+  # Keep the selected policy separate from adoption of existing state.
   dynamic "bypass_actors" {
-    for_each = (data.github_repository.release_standard[each.key].archived || contains(local.active_public_software_repositories, each.key)) ? [] : [true]
+    for_each = (data.github_repository.release_standard[each.key].archived || contains(local.enforced_public_security_repositories, each.key)) ? [] : [true]
     content {
       actor_id    = 5
       actor_type  = "RepositoryRole"
