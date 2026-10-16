@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Document the verified strict Terraform/provider TLS profile and source-release scope.
+- Add governance, conduct and a one-year roadmap without changing live infrastructure.
+
 ## [0.1.0] - 2026-10-08
 
 ### Changes

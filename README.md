@@ -144,3 +144,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for bug reports, proposed changes and tes
 [public security policy](docs/public-security.md) for review requirements,
 secret protection and rollout/state ownership. OpenSSF readiness is assessed
 for this infrastructure repository separately from the projects it manages.
+
+## Maintenance and verified operation
+
+See the [supported TLS profile](docs/TLS_PROFILE.md), [assessment evidence](docs/openssf-evidence.md), [governance](GOVERNANCE.md), [Code of Conduct](CODE_OF_CONDUCT.md), and [one-year roadmap](ROADMAP.md).
+
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15576/badge)](https://www.bestpractices.dev/projects/15576)
