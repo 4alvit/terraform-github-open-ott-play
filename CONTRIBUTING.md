@@ -71,3 +71,11 @@ silently select another provider version. Update and review the lock explicitly
 with `terraform providers lock -platform=linux_amd64 -platform=darwin_arm64`;
 provider upgrades additionally require an explicit dependency update and the
 full validation suite. The lock records verified checksums, not credentials.
+
+## Participation and assessment
+
+Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [governance](GOVERNANCE.md), and [the one-year roadmap](ROADMAP.md). Contributions must be your own work or submitted with the rights needed under the MIT license. The primary maintainer follows the same test and review policy as other contributors. Keep the README OpenSSF badge and evidence accurate within 48 hours of a status change.
+
+For cryptographic assurance use the complete [supported local-execution profile](docs/TLS_PROFILE.md); successful ordinary HTTPS requests alone do not establish exact minimum key sizes.
+
+The [OpenTofu 1.13.1 source-validation profile](docs/OPENTOFU.md) runs the same source and policy checks using FLOSS tools without changing the production backend or state.
