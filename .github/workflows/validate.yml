@@ -51,11 +51,24 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/tls-test-venv"
           "$RUNNER_TEMP/tls-test-venv/bin/pip" install cryptography==50.0.2 cffi==2.1.1 pycparser==3.0
           mirror="$RUNNER_TEMP/tls-provider-mirror"
-          terraform providers mirror -platform=linux_amd64 "$mirror"
+          mirror_config="$RUNNER_TEMP/tls-mirror-config"
+          mkdir -p "$mirror_config"
+          cat > "$mirror_config/main.tf" <<'EOF'
+          terraform {
+            required_providers {
+              github = {
+                source  = "integrations/github"
+                version = "6.13.0"
+              }
+            }
+          }
+          EOF
+          terraform -chdir="$mirror_config" providers mirror -platform=linux_amd64 "$mirror"
           provider_dir="$RUNNER_TEMP/tls-provider"
           mkdir -p "$provider_dir"
           unzip "$mirror/registry.terraform.io/integrations/github/terraform-provider-github_6.13.0_linux_amd64.zip" -d "$provider_dir"
-          export TLS_TEST_TERRAFORM="$(command -v terraform)"
+          TLS_TEST_TERRAFORM="$(command -v terraform)"
+          export TLS_TEST_TERRAFORM
           export TLS_TEST_PROVIDER_DIR="$provider_dir"
           go version -m "$TLS_TEST_TERRAFORM"
           go version -m "$provider_dir/terraform-provider-github_v6.13.0"
