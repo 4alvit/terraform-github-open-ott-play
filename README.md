@@ -150,3 +150,5 @@ for this infrastructure repository separately from the projects it manages.
 See the [supported TLS profile](docs/TLS_PROFILE.md), [assessment evidence](docs/openssf-evidence.md), [governance](GOVERNANCE.md), [Code of Conduct](CODE_OF_CONDUCT.md), and [one-year roadmap](ROADMAP.md).
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15576/badge)](https://www.bestpractices.dev/projects/15576)
+
+The [disclosed secure-provider profile](docs/SECURE_PROVIDER.md) builds a reviewed patched GitHub provider, validates an isolated source copy and supports a guarded independent local deployment with OpenTofu; production locks and state are not automatically changed. The [engine advisory assessment](docs/OPENTOFU_ADVISORIES.md) is dated and scoped.

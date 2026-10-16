@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Security
+
+- Add the explicitly labelled GitHub provider 6.13.0-openssf.1 local derivative with Go 1.27.2 and patched x/net, x/text, x/crypto and grpc dependencies. This addresses source-reachable dependency findings including GO-2026-6607 and GO-2026-6629 in the supported independent local deployment; it does not replace the official provider in existing HCP deployments.
+- Document the separate, dated OpenTofu applicability assessment, strict transport checks and engine/provider integrity requirements. See [the complete profile](docs/SECURE_PROVIDER.md). No project CVE is assigned.
+
 ### Changed
 
 - Document the verified strict Terraform/provider TLS profile and source-release scope.
