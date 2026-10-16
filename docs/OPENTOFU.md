@@ -1,6 +1,6 @@
 # FLOSS source-validation profile
 
-OpenTofu **1.13.1** (MPL-2.0), the unchanged MIT-licensed GitHub provider **6.13.0**, Python, Git, TFLint and actionlint provide a FLOSS route for validating this source. The compatibility command is:
+OpenTofu **1.13.1** (MPL-2.0), the unchanged MPL-2.0-licensed GitHub provider **6.13.0**, Python, Git, TFLint and actionlint provide a FLOSS route for validating this source. The compatibility command is:
 
 ```sh
 TOFU_BIN=/absolute/path/to/tofu python3 scripts/check_opentofu.py
