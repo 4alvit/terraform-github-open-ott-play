@@ -117,7 +117,7 @@ def main():
         )
         metadata = json.loads(
             subprocess.check_output(
-                [str(tofu), "version", "-json"], env=environment, text=True
+                [str(tofu), "version", "-json"], env=environment, text=True, umask=0o077
             )
         )
         if metadata.get("terraform_version") != "1.13.1":
@@ -130,6 +130,7 @@ def main():
             cwd=workspace,
             env=environment,
             check=True,
+            umask=0o077,
         )
         if args.command != "init":
             subprocess.run(
@@ -137,6 +138,7 @@ def main():
                 cwd=workspace,
                 env=environment,
                 check=True,
+                umask=0o077,
             )
 
 

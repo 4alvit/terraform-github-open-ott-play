@@ -106,7 +106,7 @@ def main():
             "GODEBUG": "fips140=on",
         }
         version = subprocess.check_output(
-            [str(binary), "version", "-json"], env=environment, text=True
+            [str(binary), "version", "-json"], env=environment, text=True, umask=0o077
         )
         if json.loads(version).get("terraform_version") != "1.13.1":
             raise SystemExit("This profile requires OpenTofu 1.13.1")
@@ -122,7 +122,11 @@ def main():
                 ["validate", "-no-color"],
             ):
                 subprocess.run(
-                    [str(binary), *options], cwd=work, env=environment, check=True
+                    [str(binary), *options],
+                    cwd=work,
+                    env=environment,
+                    check=True,
+                    umask=0o077,
                 )
     print(
         "Patched provider source validation passed; original state, locks and resources unchanged."
