@@ -4,7 +4,7 @@ This profile covers the maintained Terraform configurations, their GitHub provid
 
 ## Exact runtime and configuration
 
-Use the official Terraform **1.16.5** binary built with **Go 1.26.8**, the locked integrations/github **6.13.0** provider built with **Go 1.26.4**, and a supported Linux runtime. Verify downloaded package SHA-256 values using the publisher's authenticated checksum manifest and inspect the actual executable metadata with `go version -m /absolute/path/to/binary`. Preserve `.terraform.lock.hcl`; provider upgrades need new review. Verify every installed provider executable, not only the Terraform command on PATH.
+Use the official Terraform **1.16.6** binary built with **Go 1.26.8**, the locked integrations/github **6.13.0** provider built with **Go 1.26.4**, and a supported Linux runtime. Verify downloaded package SHA-256 values using the publisher's authenticated checksum manifest and inspect the actual executable metadata with `go version -m /absolute/path/to/binary`. Preserve `.terraform.lock.hcl`; provider upgrades need new review. Verify every installed provider executable, not only the Terraform command on PATH.
 
 Run Terraform with this process-scoped environment assignment:
 
@@ -50,3 +50,5 @@ The October 2026 Linux ARM64 run passed all eight calibration/strict combination
 The source/publication helper invokes GitHub CLI separately. For those operations, use official GitHub CLI 2.102.0 built with Go 1.27.1 (verify the exact executable via `go version -m`) and the same `GODEBUG=fips140=on` environment assignment with the normal github.com host. Maintained release helpers preserve inherited environments. Git clones are operator HTTPS client operations; no custom project Git transport is introduced.
 
 The [OpenTofu FLOSS development profile](OPENTOFU.md) uses Go 1.27.1 and passes the same eight TLS cases. Its temporary compatibility copy is for source validation; production workspace migration remains separate.
+
+For a fully qualified independent local deployment using the patched provider, follow [SECURE_PROVIDER.md](SECURE_PROVIDER.md). The original HCP deployment remains outside that profile.

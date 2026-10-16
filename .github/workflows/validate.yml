@@ -26,7 +26,7 @@ jobs:
           python3 -m pip install --require-hashes --only-binary=:all: -r .github/requirements-workflow-contracts.txt
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
         with:
-          terraform_version: 1.16.5
+          terraform_version: 1.16.6
           terraform_wrapper: false
       - name: Install checksum-verified actionlint
         run: |
@@ -42,6 +42,11 @@ jobs:
           checksums: |
             cca9d13e2e1d7a2c627af60ff899a3c9b74212899416aeb96ec764d2ef954537
             560da89aacf59389d4eb029730dd5b109b7288096c32f2726a0d9e783a5ea8eb
+      - name: Verify isolated secure-provider builder
+        run: |
+          python3 -m venv "$RUNNER_TEMP/secure-provider-tests"
+          "$RUNNER_TEMP/secure-provider-tests/bin/pip" install --require-hashes -r requirements-security-tests.txt
+          "$RUNNER_TEMP/secure-provider-tests/bin/python" -m unittest discover -s tests -p 'test_secure*.py'
       - name: Run local checks
         run: bash scripts/ci.sh
       - name: Verify real Terraform and provider TLS boundaries

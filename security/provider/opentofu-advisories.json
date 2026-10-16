@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-16",
+  "version": "OpenTofu1.13.1",
+  "go_version": "1.27.1",
+  "upstream_commit": "233700b795b6d2372f1c56ed57a4abaec9d36475",
+  "dependency_count": 1808,
+  "scope": "local backend init/validate/plan and provider RPC with AutoMTLS enabled; no remote backends, login, serve, custom plugins or disabling TLS",
+  "advisories": [
+    {
+      "id": "GO-2026-6617",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "HTTP/2 server crash due to HPACK encoder race in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6617",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6613",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "HTTP/1 server connection desynchronization after 2xx CONNECT response in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6613",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6612",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Double flow control refund on HTTP/2 server streams in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6612",
+      "disposition": "HTTP/2 server flow-control precondition absent in normal local-backend init/validate/plan. Provider communication is local, private AutoMTLS; no public HTTP2 server configured."
+    },
+    {
+      "id": "GO-2026-6611",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Excessive CPU consumption from repeated initial window changes in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6611",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6610",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "HTTP/2 transport accepts malformed framing-related headers in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6610",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6609",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Lack of limit on size of parsed Range headers in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6609",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6608",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Memory limit bypass when parsing MIME headers in net/textproto, mime/multipart",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6608",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6607",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Reject malformed ECH outer extension references in crypto/tls",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6607",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6605",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "HTTP/1 client connection desynchronization after CONNECT rejection in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6605",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6603",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "HTTP/2 server memory exhaustion due to Trailer headers in net/http",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6603",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6600",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Recognize yield as regexp preceder keyword in html/template",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6600",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6599",
+      "published": "2026-10-08T22:31:09Z",
+      "summary": "Reset context tracking on consecutive template expressions in html/template",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6599",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6443",
+      "published": "2026-09-15T18:39:25Z",
+      "summary": "Server panic via missing authority or Host headers in google.golang.org/grpc",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6443",
+      "disposition": "Recent noncritical advisory, less than 60 days old; remains tracked."
+    },
+    {
+      "id": "GO-2026-6180",
+      "published": "2026-08-13T21:43:54Z",
+      "summary": "Ignore unrelated, unauthenticated hashes in Lookup in golang.org/x/mod/sumdb",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6180",
+      "disposition": "Affected sumdb client/tlog packages not imported. Only independent sumdb/dirhash package is used for content hashing."
+    },
+    {
+      "id": "GO-2026-6179",
+      "published": "2026-08-13T21:43:54Z",
+      "summary": "Fix transparency log tile verification bypass in golang.org/x/mod/sumdb/tlog",
+      "source": "https://pkg.go.dev/vuln/GO-2026-6179",
+      "disposition": "Affected sumdb client/tlog packages not imported. Only independent sumdb/dirhash package is used for content hashing."
+    },
+    {
+      "id": "GO-2026-5932",
+      "published": "2026-07-07T22:15:29Z",
+      "summary": "The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design, and has known security issues",
+      "source": "https://pkg.go.dev/vuln/GO-2026-5932",
+      "disposition": "Not imported. Uses maintained github.com/ProtonMail/go-crypto/openpgp, not golang.org/x/crypto/openpgp."
+    }
+  ]
+}
