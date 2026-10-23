@@ -1,5 +1,5 @@
-# Stronger review enforcement is staged until each repository's approval and CI
-# automation has been verified. State reconciliation alone must not activate it.
+# Android review and CI are mandatory after its workflow rollout. Other
+# repositories remain staged until their approval and CI automation is verified.
 variable "public_security_enforcement_repositories" {
   description = "Audited public repositories explicitly enabled for new review rules and removal of existing administrator bypasses"
   type        = set(string)
@@ -38,7 +38,7 @@ locals {
 
 locals {
   enforced_public_security_repositories = setintersection(
-    var.public_security_enforcement_repositories,
+    setunion(toset(["ottplay-android"]), var.public_security_enforcement_repositories),
     local.active_public_software_repositories,
   )
 }
@@ -67,6 +67,16 @@ resource "github_repository_ruleset" "public_review" {
       dismiss_stale_reviews_on_push     = true
       require_last_push_approval        = true
       required_review_thread_resolution = true
+    }
+    dynamic "required_status_checks" {
+      for_each = each.value == "ottplay-android" ? [true] : []
+      content {
+        strict_required_status_checks_policy = true
+        required_check {
+          context        = "CI gate"
+          integration_id = 15368
+        }
+      }
     }
   }
 }
