@@ -93,10 +93,15 @@ administrators (role ID 5) can explicitly bypass it when merging a pull request;
 normal merges still require successful strict CI. Removal of existing
 administrator exceptions and new public review rules are deferred until the
 repository is explicitly added to `public_security_enforcement_repositories`.
-The default empty set preserves the existing policy. This `pull_request` grant
-does not allow direct pushes and is not added to archived repositories. The
-separate `Default` review rules and release-environment approval policies retain
-their existing settings. Immutable release tags have no bypass.
+This `pull_request` grant does not allow direct pushes and is not added to
+archived repositories. The separate `Default` review rules and release-environment
+approval policies retain their existing settings. Immutable release tags have no
+bypass.
+
+The desired Android policy is now mandatory: one current review and its aggregate
+`CI gate`, with no bypass. Merge and verify its gate/approval workflow before
+applying. The default empty activation set preserves the other staged
+repositories' existing policy.
 
 ## Usage
 

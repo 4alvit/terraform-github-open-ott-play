@@ -4,9 +4,11 @@
 Live metadata excludes private and archived repositories from new protections.
 The required review count is one approval from a reviewer with Write access.
 Automation may provide that approval. Keep this count at one when reconciling
-Terraform with GitHub. New review rules and removal of existing administrator
-exceptions require explicit membership in
-`public_security_enforcement_repositories`, which is empty by default.
+Terraform with GitHub. The desired Android policy requires one current review and strict
+GitHub Actions `CI gate` (`15368`) without bypass. Its aggregate gate validates the
+selected host/device jobs and only permits explicit documentation-only skips.
+Other new review rules and removal of existing administrator exceptions require
+explicit membership in `public_security_enforcement_repositories`.
 Existing checks, signatures and immutable-tag protections remain separate
 requirements.
 
@@ -24,14 +26,18 @@ preserving bypass actors, Code Owners and CI/scanning requirements. The profile
 CI gate is bound to the GitHub Actions app that publishes it.
 
 State adoption imports existing workflow permissions and bot-team grants. It
-preserves the core repository's enabled auto-merge. No new review rules or
-administrator-bypass removals are activated by this reconciliation.
+preserves the core repository's enabled auto-merge. Android policy activation is a
+separate reviewed change from state adoption;
+other staged review rules remain inactive by default.
 
 Before adding a repository to `public_security_enforcement_repositories`, verify
 its required checks and permitted reviewers, including auto-approval if the
-repository uses it. The core and Android repositories do not yet have the same
-auto-approval workflows as FOSS and SWOP; merely importing their existing bot
-access must not impose a new review blocker. The vitrine's new review rule is
+repository uses it. Android reuses the shared metadata-only bot approval on the
+`automerge`
+label. Merge and verify its approval workflow and aggregate `CI gate` before
+applying the mandatory ruleset, then read back the live rule. Core still needs
+its own verified automation before activation; importing existing bot access
+alone must not impose a new review blocker. The vitrine's new review rule is
 also deferred to the explicit rollout. Existing protected repositories retain
 their current policies until individually selected.
 
