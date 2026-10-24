@@ -54,8 +54,11 @@ reviewed Outpace history and its AGPL-3.0-or-later notices can be imported intac
 Terraform protects the repository from destruction, enables secret scanning and
 push protection, vulnerability alerts and Dependabot security updates, and grants
 the existing `bots` team push access. No license template replaces the upstream
-license. Branch protections are enabled only after its initial source import and
-the required CI workflows have passed.
+license. After its source/CI bootstrap, the default branch requires one current review
+and five strict GitHub Actions contexts: `Rust lint`, `Rust test`, `A/B harness
+test`, `HLS audio synthetic`, and `acestream identifier hygiene`. Source archive
+and release packaging tests run inside the Rust and A/B checks. The rules have no
+bypass, and published `v*` tags cannot be rewritten or deleted.
 
 The existing `bots` team has `push` access to `ottplay-core` and `ottplay-android`
 to create shared-core artifact update branches and pull requests. These existing

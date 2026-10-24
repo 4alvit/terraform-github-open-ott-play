@@ -48,3 +48,65 @@ resource "github_team_repository" "bots_outpace_acestream" {
   repository = github_repository.outpace_acestream.name
   permission = "push"
 }
+
+# Activate only after the imported main branch has passed these exact contexts.
+# Match the current public-software review policy; do not add an admin/bot bypass.
+resource "github_repository_ruleset" "outpace_acestream_main" {
+  name        = "Public software - required review and CI"
+  repository  = github_repository.outpace_acestream.name
+  target      = "branch"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+
+  rules {
+    deletion         = true
+    non_fast_forward = true
+    pull_request {
+      required_approving_review_count   = 1
+      dismiss_stale_reviews_on_push     = true
+      require_last_push_approval        = true
+      required_review_thread_resolution = true
+    }
+    required_status_checks {
+      strict_required_status_checks_policy = true
+      dynamic "required_check" {
+        for_each = toset([
+          "Rust lint",
+          "Rust test",
+          "A/B harness test",
+          "HLS audio synthetic",
+          "acestream identifier hygiene",
+        ])
+        content {
+          context        = required_check.value
+          integration_id = 15368
+        }
+      }
+    }
+  }
+}
+
+resource "github_repository_ruleset" "outpace_acestream_release_tags" {
+  name        = "Release standard - immutable version tags"
+  repository  = github_repository.outpace_acestream.name
+  target      = "tag"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["refs/tags/v*"]
+      exclude = []
+    }
+  }
+  rules {
+    deletion         = true
+    update           = true
+    non_fast_forward = true
+  }
+}
