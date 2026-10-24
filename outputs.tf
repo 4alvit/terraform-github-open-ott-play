@@ -21,6 +21,11 @@ output "repositories" {
       html_url = github_repository.ottplay_android.html_url
       ssh_url  = github_repository.ottplay_android.ssh_clone_url
     }
+    outpace_acestream = {
+      name     = github_repository.outpace_acestream.name
+      html_url = github_repository.outpace_acestream.html_url
+      ssh_url  = github_repository.outpace_acestream.ssh_clone_url
+    }
     ottplay_swop = {
       name     = github_repository.ottplay_swop.name
       html_url = github_repository.ottplay_swop.html_url
