@@ -37,6 +37,7 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
 - `ottplay-core` — public canonical shared core and independent ES5 client
 - `ottplay-android` — public native Android and Android TV application
+- `outpace-acestream` — public Rust AceStream engine derived from Outpace under AGPL-3.0-or-later
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
 
@@ -47,6 +48,14 @@ Set these in Terraform Cloud workspace variables (not in git):
 `prevent_destroy` protection. Their history, releases and Android signing secrets
 are not recreated or stored in Terraform; signing remains a main-only manual
 GitHub Actions workflow with secrets held separately from the published source.
+
+`outpace-acestream` is an independent public repository, created empty so the
+reviewed Outpace history and its AGPL-3.0-or-later notices can be imported intact.
+Terraform protects the repository from destruction, enables secret scanning and
+push protection, vulnerability alerts and Dependabot security updates, and grants
+the existing `bots` team push access. No license template replaces the upstream
+license. Branch protections are enabled only after its initial source import and
+the required CI workflows have passed.
 
 The existing `bots` team has `push` access to `ottplay-core` and `ottplay-android`
 to create shared-core artifact update branches and pull requests. These existing
