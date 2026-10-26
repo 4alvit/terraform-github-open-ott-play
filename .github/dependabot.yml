@@ -5,6 +5,9 @@ updates:
     schedule:
       interval: daily
     groups:
+      shared-workflows:
+        patterns:
+          - "victron-venus/venus-os-ci-toolkit*"
       codeql:
         patterns:
           - "github/codeql-action*"
