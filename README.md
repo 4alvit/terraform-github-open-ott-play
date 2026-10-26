@@ -37,6 +37,7 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
 - `ottplay-core` — public canonical shared core and independent ES5 client
 - `ottplay-android` — public native Android and Android TV application
+- `outpace-acestream` — public Rust AceStream engine derived from Outpace under AGPL-3.0-or-later
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
 
@@ -47,6 +48,17 @@ Set these in Terraform Cloud workspace variables (not in git):
 `prevent_destroy` protection. Their history, releases and Android signing secrets
 are not recreated or stored in Terraform; signing remains a main-only manual
 GitHub Actions workflow with secrets held separately from the published source.
+
+`outpace-acestream` is an independent public repository, created empty so the
+reviewed Outpace history and its AGPL-3.0-or-later notices can be imported intact.
+Terraform protects the repository from destruction, enables secret scanning and
+push protection, vulnerability alerts and Dependabot security updates, and grants
+the existing `bots` team push access. No license template replaces the upstream
+license. After its source/CI bootstrap, the default branch requires one current review
+and five strict GitHub Actions contexts: `Rust lint`, `Rust test`, `A/B harness
+test`, `HLS audio synthetic`, and `acestream identifier hygiene`. Source archive
+and release packaging tests run inside the Rust and A/B checks. The rules have no
+bypass, and published `v*` tags cannot be rewritten or deleted.
 
 The existing `bots` team has `push` access to `ottplay-core` and `ottplay-android`
 to create shared-core artifact update branches and pull requests. These existing
@@ -93,10 +105,15 @@ administrators (role ID 5) can explicitly bypass it when merging a pull request;
 normal merges still require successful strict CI. Removal of existing
 administrator exceptions and new public review rules are deferred until the
 repository is explicitly added to `public_security_enforcement_repositories`.
-The default empty set preserves the existing policy. This `pull_request` grant
-does not allow direct pushes and is not added to archived repositories. The
-separate `Default` review rules and release-environment approval policies retain
-their existing settings. Immutable release tags have no bypass.
+This `pull_request` grant does not allow direct pushes and is not added to
+archived repositories. The separate `Default` review rules and release-environment
+approval policies retain their existing settings. Immutable release tags have no
+bypass.
+
+The desired Android policy is now mandatory: one current review and its aggregate
+`CI gate`, with no bypass. Merge and verify its gate/approval workflow before
+applying. The default empty activation set preserves the other staged
+repositories' existing policy.
 
 ## Usage
 

@@ -12,3 +12,8 @@ variable "github_organization" {
   type    = string
   default = "release-contract-fixture"
 }
+
+resource "github_team" "bots" {
+  name    = "bots"
+  privacy = "closed"
+}
