@@ -169,3 +169,21 @@ See the [supported TLS profile](docs/TLS_PROFILE.md), [assessment evidence](docs
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15576/badge)](https://www.bestpractices.dev/projects/15576)
 
 The [disclosed secure-provider profile](docs/SECURE_PROVIDER.md) builds a reviewed patched GitHub provider, validates an isolated source copy and supports a guarded independent local deployment with OpenTofu; production locks and state are not automatically changed. The [engine advisory assessment](docs/OPENTOFU_ADVISORIES.md) is dated and scoped.
+
+### Existing Control Server CI rule
+
+`control-server-import.tf` adopts the existing `Main branch validation` rule
+`23684613` into `github_repository_ruleset.control_server_main`. The dedicated
+resource preserves its current name, default-branch scope, no bypass, zero-review
+count, conversation resolution and allowed merge methods. Its only intended
+remote change is binding the literal `CI gate` to GitHub Actions App ID `15368`.
+Do not add this repository to the generic release-gate set as a replacement.
+
+Ownership must be established before adoption. Review a full saved plan with
+the existing rule imported and only this app binding changed; stop on any
+unrelated create, update, replacement or deletion. The mock tests exclude the
+import and backend; they do not perform state adoption or prove live enforcement.
+After a separately approved apply, compare every writable ruleset field through
+the GitHub API, including `require_extra_approval_for_unattributed_changes=false`.
+The locked provider does not represent that additional field; any provider reset
+requires a separately reviewed, rule-scoped correction before acceptance.
