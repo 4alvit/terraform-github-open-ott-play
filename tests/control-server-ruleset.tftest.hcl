@@ -10,7 +10,7 @@ variables {
   github_organization = "open-ott-play"
 }
 
-run "preserve_existing_rule_and_bind_only_ci_app" {
+run "require_one_review_and_preserve_existing_protections" {
   command = plan
   assert {
     condition = (
@@ -45,14 +45,14 @@ run "preserve_existing_rule_and_bind_only_ci_app" {
   }
   assert {
     condition = (
-      one(one(github_repository_ruleset.control_server_main.rules).pull_request).required_approving_review_count == 0 &&
+      one(one(github_repository_ruleset.control_server_main.rules).pull_request).required_approving_review_count == 1 &&
       one(one(github_repository_ruleset.control_server_main.rules).pull_request).dismiss_stale_reviews_on_push &&
       !one(one(github_repository_ruleset.control_server_main.rules).pull_request).require_code_owner_review &&
       !one(one(github_repository_ruleset.control_server_main.rules).pull_request).require_last_push_approval &&
       one(one(github_repository_ruleset.control_server_main.rules).pull_request).required_review_thread_resolution &&
       toset(one(one(github_repository_ruleset.control_server_main.rules).pull_request).allowed_merge_methods) == toset(["merge", "squash", "rebase"])
     )
-    error_message = "Adoption must preserve the existing zero-review and required-conversation policy."
+    error_message = "Require exactly one approval and preserve the other existing pull-request settings."
   }
 }
 

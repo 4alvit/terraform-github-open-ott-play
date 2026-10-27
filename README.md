@@ -174,13 +174,16 @@ The [disclosed secure-provider profile](docs/SECURE_PROVIDER.md) builds a review
 
 `control-server-import.tf` adopts the existing `Main branch validation` rule
 `23684613` into `github_repository_ruleset.control_server_main`. The dedicated
-resource preserves its current name, default-branch scope, owner emergency exception, zero-review
-count, conversation resolution and allowed merge methods. Its only intended
-remote change is binding the literal `CI gate` to GitHub Actions App ID `15368`.
+resource requires exactly one approving review for ordinary merges and binds the
+literal `CI gate` to GitHub Actions App ID `15368`. Its name, default-branch scope,
+owner emergency exception, stale-review dismissal, conversation resolution and
+allowed merge methods are preserved. Code Owner review and last-push approval
+remain disabled; the one-review correction does not enable either setting.
 Do not add this repository to the generic release-gate set as a replacement.
 
-Ownership must be established before adoption. Review a full saved plan with
-the existing rule imported and only this app binding changed; stop on any
+The existing rule was adopted without changing its former zero-review policy.
+For the one-review correction, review a saved plan against that canonical state
+with only `required_approving_review_count` changing from `0` to `1`; stop on any
 unrelated create, update, replacement or deletion. The mock tests exclude the
 import and backend; they do not perform state adoption or prove live enforcement.
 After a separately approved apply, compare every writable ruleset field through
