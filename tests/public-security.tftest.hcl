@@ -16,7 +16,7 @@ run "android_policy_is_mandatory_and_other_reviews_remain_staged" {
   }
 }
 
-run "review_requires_one_current_approval_without_bypass" {
+run "review_requires_one_current_approval_with_owner_exception" {
   command = plan
   variables {
     public_security_enforcement_repositories = ["ottplay-android", "ottplay-core", "ottplay-web-vitrine"]
@@ -28,14 +28,22 @@ run "review_requires_one_current_approval_without_bypass" {
   assert {
     condition = alltrue([
       for policy in github_repository_ruleset.public_review : (
-        length(policy.bypass_actors) == 0 &&
+        (
+          length([for actor in policy.bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+          alltrue([
+            for actor in policy.bypass_actors :
+            coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+            if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+          ]) &&
+          length([for actor in policy.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
+        ) &&
         one(one(policy.rules).pull_request).required_approving_review_count == 1 &&
         one(one(policy.rules).pull_request).dismiss_stale_reviews_on_push &&
         one(one(policy.rules).pull_request).require_last_push_approval &&
         one(one(policy.rules).pull_request).required_review_thread_resolution
       )
     ])
-    error_message = "New public review rules must have no administrator/bot bypass and require current reviews."
+    error_message = "New public review rules must have only the owner emergency exception and require current reviews."
   }
 }
 
@@ -75,7 +83,7 @@ run "archived_repository_is_excluded" {
   }
 }
 
-run "android_requires_actual_ci_gate_without_bypass" {
+run "android_requires_actual_ci_gate_with_owner_exception" {
   command = plan
   variables {
     public_security_enforcement_repositories = []
@@ -84,7 +92,15 @@ run "android_requires_actual_ci_gate_without_bypass" {
     condition = (
       github_repository_ruleset.public_review["ottplay-android"].enforcement == "active" &&
       toset(one(one(github_repository_ruleset.public_review["ottplay-android"].conditions).ref_name).include) == toset(["~DEFAULT_BRANCH"]) &&
-      length(github_repository_ruleset.public_review["ottplay-android"].bypass_actors) == 0 &&
+      (
+        length([for actor in github_repository_ruleset.public_review["ottplay-android"].bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+        alltrue([
+          for actor in github_repository_ruleset.public_review["ottplay-android"].bypass_actors :
+          coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+          if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+        ]) &&
+        length([for actor in github_repository_ruleset.public_review["ottplay-android"].bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
+      ) &&
       one(one(github_repository_ruleset.public_review["ottplay-android"].rules).pull_request).required_approving_review_count == 1 &&
       one(one(github_repository_ruleset.public_review["ottplay-android"].rules).pull_request).dismiss_stale_reviews_on_push &&
       one(one(github_repository_ruleset.public_review["ottplay-android"].rules).pull_request).require_last_push_approval &&
@@ -93,6 +109,18 @@ run "android_requires_actual_ci_gate_without_bypass" {
       length(one(one(github_repository_ruleset.public_review["ottplay-android"].rules).required_status_checks).required_check) == 1 &&
       alltrue([for check in one(one(github_repository_ruleset.public_review["ottplay-android"].rules).required_status_checks).required_check : check.context == "CI gate" && check.integration_id == 15368])
     )
-    error_message = "Android must require one current approval and its strict GitHub Actions aggregate CI gate without bypass."
+    error_message = "Android must require one current approval and its strict GitHub Actions aggregate CI gate with the documented owner exception."
+  }
+}
+
+run "emergency_merge_is_limited_to_the_owner_and_pull_requests" {
+  command = plan
+  assert {
+    condition = (
+      local.owner_emergency_merge_actor.actor_type == "OrganizationAdmin" &&
+      local.owner_emergency_merge_actor.actor_id == null &&
+      local.owner_emergency_merge_actor.bypass_mode == "pull_request"
+    )
+    error_message = "Only the declared owner may use the emergency PR exception; repository roles, automation and direct pushes are not added."
   }
 }

@@ -5,6 +5,7 @@ temporary=$(mktemp -d "${TMPDIR:-/tmp}/control-server-ruleset-test.XXXXXX")
 trap 'rm -rf "$temporary"' EXIT
 mkdir -p "$temporary/tests" "$temporary/provider-cache"
 touch "$temporary/empty.tfrc"
+cp admin-merge-policy.tf "$temporary/"
 # Exclude the config-driven import and every backend/credential input.
 cp control-server-ruleset.tf tests/release-governance/main.tf "$temporary/"
 cp tests/control-server-ruleset.tftest.hcl "$temporary/tests/"

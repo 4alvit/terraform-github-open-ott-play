@@ -18,11 +18,19 @@ run "preserve_existing_rule_and_bind_only_ci_app" {
       github_repository_ruleset.control_server_main.repository == "ottplay-control-server" &&
       github_repository_ruleset.control_server_main.target == "branch" &&
       github_repository_ruleset.control_server_main.enforcement == "active" &&
-      length(github_repository_ruleset.control_server_main.bypass_actors) == 0 &&
+      (
+        length([for actor in github_repository_ruleset.control_server_main.bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+        alltrue([
+          for actor in github_repository_ruleset.control_server_main.bypass_actors :
+          coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+          if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+        ]) &&
+        length([for actor in github_repository_ruleset.control_server_main.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
+      ) &&
       toset(one(one(github_repository_ruleset.control_server_main.conditions).ref_name).include) == toset(["~DEFAULT_BRANCH"]) &&
       length(one(one(github_repository_ruleset.control_server_main.conditions).ref_name).exclude) == 0
     )
-    error_message = "Keep the exact existing rule identity, default branch and no-bypass scope."
+    error_message = "Keep the exact existing rule identity, default branch and owner-exception scope."
   }
   assert {
     condition = (

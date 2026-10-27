@@ -111,7 +111,7 @@ approval policies retain their existing settings. Immutable release tags have no
 bypass.
 
 The desired Android policy is now mandatory: one current review and its aggregate
-`CI gate`, with no bypass. Merge and verify its gate/approval workflow before
+`CI gate`, with the owner emergency exception. Merge and verify its gate/approval workflow before
 applying. The default empty activation set preserves the other staged
 repositories' existing policy.
 
@@ -174,7 +174,7 @@ The [disclosed secure-provider profile](docs/SECURE_PROVIDER.md) builds a review
 
 `control-server-import.tf` adopts the existing `Main branch validation` rule
 `23684613` into `github_repository_ruleset.control_server_main`. The dedicated
-resource preserves its current name, default-branch scope, no bypass, zero-review
+resource preserves its current name, default-branch scope, owner emergency exception, zero-review
 count, conversation resolution and allowed merge methods. Its only intended
 remote change is binding the literal `CI gate` to GitHub Actions App ID `15368`.
 Do not add this repository to the generic release-gate set as a replacement.
@@ -187,3 +187,7 @@ After a separately approved apply, compare every writable ruleset field through
 the GitHub API, including `require_extra_approval_for_unattributed_changes=false`.
 The locked provider does not represent that additional field; any provider reset
 requires a separately reviewed, rule-scoped correction before acceptance.
+
+## Emergency merge authority
+
+Organization owners can use a [documented emergency exception](docs/public-security.md#emergency-owner-merges) through a pull request when necessary. Ordinary review and CI requirements remain; this grant does not authorize direct pushes or tag rewrites. Terraform must be applied to the canonical state and live rules verified before relying on it.
