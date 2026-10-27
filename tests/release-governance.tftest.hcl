@@ -45,10 +45,18 @@ run "public_protections_keep_publication_disabled" {
   assert {
     condition = alltrue([
       for gate in github_repository_ruleset.release_quality_gate :
-      length(gate.bypass_actors) == 1 &&
-      one(gate.bypass_actors).actor_id == 5 &&
-      one(gate.bypass_actors).actor_type == "RepositoryRole" &&
-      one(gate.bypass_actors).bypass_mode == "pull_request" &&
+      (
+        length([for actor in gate.bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+        alltrue([
+          for actor in gate.bypass_actors :
+          coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+          if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+        ]) &&
+        length([for actor in gate.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 1
+      ) &&
+      one([for actor in gate.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]).actor_id == 5 &&
+      one([for actor in gate.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]).actor_type == "RepositoryRole" &&
+      one([for actor in gate.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]).bypass_mode == "pull_request" &&
       one(one(gate.rules).required_status_checks).strict_required_status_checks_policy &&
       one(one(one(gate.rules).required_status_checks).required_check).context == "CI gate"
     ])
@@ -206,15 +214,23 @@ run "token_defaults_preserve_actions_approval" {
   }
 }
 
-run "explicit_public_ci_rollout_has_no_bypass" {
+run "explicit_public_ci_rollout_has_owner_exception" {
   command = plan
   variables {
     release_gate_repositories                = ["ottplay-android"]
     public_security_enforcement_repositories = ["ottplay-android"]
   }
   assert {
-    condition     = length(github_repository_ruleset.release_quality_gate["ottplay-android"].bypass_actors) == 0
-    error_message = "Audited public CI cannot be bypassed by administrators."
+    condition = (
+      length([for actor in github_repository_ruleset.release_quality_gate["ottplay-android"].bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+      alltrue([
+        for actor in github_repository_ruleset.release_quality_gate["ottplay-android"].bypass_actors :
+        coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+        if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+      ]) &&
+      length([for actor in github_repository_ruleset.release_quality_gate["ottplay-android"].bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
+    )
+    error_message = "Audited public CI allows only the explicit owner exception."
   }
 }
 
@@ -224,7 +240,15 @@ run "unselected_public_ci_preserves_existing_bypass" {
     release_gate_repositories = ["ottplay-foss"]
   }
   assert {
-    condition     = length(github_repository_ruleset.release_quality_gate["ottplay-foss"].bypass_actors) == 1
+    condition = (
+      length([for actor in github_repository_ruleset.release_quality_gate["ottplay-foss"].bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+      alltrue([
+        for actor in github_repository_ruleset.release_quality_gate["ottplay-foss"].bypass_actors :
+        coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+        if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+      ]) &&
+      length([for actor in github_repository_ruleset.release_quality_gate["ottplay-foss"].bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 1
+    )
     error_message = "An unselected public repository must retain its existing administrator exception."
   }
 }

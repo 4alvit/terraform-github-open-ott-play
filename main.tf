@@ -283,6 +283,13 @@ resource "github_repository_ruleset" "profile" {
     bypass_mode = "always"
   }
 
+  # Owners may make an explicit emergency merge through an auditable PR.
+  bypass_actors {
+    actor_id    = local.owner_emergency_merge_actor.actor_id
+    actor_type  = local.owner_emergency_merge_actor.actor_type
+    bypass_mode = local.owner_emergency_merge_actor.bypass_mode
+  }
+
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]
@@ -333,6 +340,13 @@ resource "github_repository_ruleset" "ottplay_foss" {
       actor_type  = "RepositoryRole"
       bypass_mode = "always"
     }
+  }
+
+  # Owners may make an explicit emergency merge through an auditable PR.
+  bypass_actors {
+    actor_id    = local.owner_emergency_merge_actor.actor_id
+    actor_type  = local.owner_emergency_merge_actor.actor_type
+    bypass_mode = local.owner_emergency_merge_actor.bypass_mode
   }
 
   conditions {
@@ -399,6 +413,13 @@ resource "github_repository_ruleset" "ottplay_swop" {
       actor_type  = "RepositoryRole"
       bypass_mode = "always"
     }
+  }
+
+  # Owners may make an explicit emergency merge through an auditable PR.
+  bypass_actors {
+    actor_id    = local.owner_emergency_merge_actor.actor_id
+    actor_type  = local.owner_emergency_merge_actor.actor_type
+    bypass_mode = local.owner_emergency_merge_actor.bypass_mode
   }
 
   conditions {

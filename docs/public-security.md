@@ -1,11 +1,41 @@
 # Public software security policy
 
+## Emergency owner merges
+
+The owner policy approved on 2026-10-27 permits organization owners (`OrganizationAdmin`, with no actor ID)
+to bypass branch requirements **only while merging a pull request**. The shared
+`owner_emergency_merge_actor` in `admin-merge-policy.tf` is attached to each
+managed branch ruleset, including separate review and CI gates. A grant on only
+one ruleset cannot override another applicable rule. Existing unrelated actor
+exceptions are preserved; this change does not grant automation new privileges.
+
+Ordinary merges retain their existing reviews, CI, signatures and resolved-thread
+requirements. Use the exception deliberately for a necessary recovery, record the
+reason and available validation in the PR, and follow up on skipped checks. The
+new grant cannot authorize a direct push, force push, branch deletion or tag
+rewrite. Immutable release tags and deployment-environment approvals are unchanged.
+Archived repositories remain read-only; existing archived release gates receive
+no new actor. Repositories without enforced protection need no bypass grant.
+
+Apply only a reviewed plan against the canonical existing HCP state, then read
+back every applicable repository and inherited organization ruleset. An existing
+classic branch protection can still prohibit bypass; it needs its own reviewed
+state-managed update. Reconcile the unsupported extra Copilot approval field as
+described below, preserving the actor list. A merge of this source is not proof
+that HCP or GitHub has been updated.
+
+OpenSSF Best Practices and OpenSSF Scorecard are separate assessments. This
+exception is an explicit governance tradeoff: do not claim maximum branch
+protection or universal two-person review. Reassess the actual badge criteria
+and published evidence after any use that skips independent review. The
+presence of a badge does not approve an emergency merge.
+
 `public-security.tf` lists the public repositories reviewed for this rollout.
 Live metadata excludes private and archived repositories from new protections.
 The required review count is one approval from a reviewer with Write access.
 Automation may provide that approval. Keep this count at one when reconciling
 Terraform with GitHub. The desired Android policy requires one current review and strict
-GitHub Actions `CI gate` (`15368`) without bypass. Its aggregate gate validates the
+GitHub Actions `CI gate` (`15368`) with the documented owner emergency exception. Its aggregate gate validates the
 selected host/device jobs and only permits explicit documentation-only skips.
 Other new review rules and removal of existing administrator exceptions require
 explicit membership in `public_security_enforcement_repositories`.

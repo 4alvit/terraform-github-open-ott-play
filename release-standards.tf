@@ -104,6 +104,16 @@ resource "github_repository_ruleset" "release_quality_gate" {
       bypass_mode = "pull_request"
     }
   }
+  # Archived repositories retain their existing permissions.
+  dynamic "bypass_actors" {
+    for_each = data.github_repository.release_standard[each.key].archived ? [] : [local.owner_emergency_merge_actor]
+    content {
+      actor_id    = bypass_actors.value.actor_id
+      actor_type  = bypass_actors.value.actor_type
+      bypass_mode = bypass_actors.value.bypass_mode
+    }
+  }
+
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH"]

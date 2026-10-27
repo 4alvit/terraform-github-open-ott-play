@@ -13,7 +13,15 @@ run "outpace_requires_current_review_and_exact_build_source_checks" {
   assert {
     condition = (
       github_repository_ruleset.outpace_acestream_main.enforcement == "active" &&
-      length(github_repository_ruleset.outpace_acestream_main.bypass_actors) == 0 &&
+      (
+        length([for actor in github_repository_ruleset.outpace_acestream_main.bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+        alltrue([
+          for actor in github_repository_ruleset.outpace_acestream_main.bypass_actors :
+          coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+          if actor.actor_type == local.owner_emergency_merge_actor.actor_type
+        ]) &&
+        length([for actor in github_repository_ruleset.outpace_acestream_main.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
+      ) &&
       toset(one(one(github_repository_ruleset.outpace_acestream_main.conditions).ref_name).include) == toset(["~DEFAULT_BRANCH"]) &&
       one(github_repository_ruleset.outpace_acestream_main.rules).deletion &&
       one(github_repository_ruleset.outpace_acestream_main.rules).non_fast_forward &&
@@ -27,7 +35,7 @@ run "outpace_requires_current_review_and_exact_build_source_checks" {
       ]) &&
       alltrue([for check in one(one(github_repository_ruleset.outpace_acestream_main.rules).required_status_checks).required_check : check.integration_id == 15368])
     )
-    error_message = "Outpace must require current review and its five verified Actions contexts without bypass."
+    error_message = "Outpace must require current review and its five verified Actions contexts with the documented owner exception."
   }
 }
 
