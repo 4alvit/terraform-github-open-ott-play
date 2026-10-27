@@ -36,7 +36,7 @@ resource "github_repository_ruleset" "control_server_main" {
       }
     }
     pull_request {
-      required_approving_review_count   = 0
+      required_approving_review_count   = 1
       dismiss_stale_reviews_on_push     = true
       require_code_owner_review         = false
       require_last_push_approval        = false
