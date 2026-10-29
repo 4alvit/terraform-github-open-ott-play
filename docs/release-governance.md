@@ -17,9 +17,10 @@ Existing public security/review configuration stays in place.
 The required CI gate grants repository administrators (role ID 5) a
 `pull_request` bypass on active public repositories. Administrators may
 explicitly override CI when merging a PR; ordinary merges still require a
-successful strict gate. This grant does not allow direct pushes and is not added
-to archived repositories. The separate default review ruleset and
-release-environment approval policies retain their existing settings.
+successful strict gate. This role-based exception stays limited to pull requests
+and is not added to archived repositories. Organization owners separately have
+permanent bypass on review and CI branch rules, including direct updates and
+history repair. Release-environment approval policies retain their existing settings.
 Tag rules receive no bypass actors.
 
 `RELEASE_CHANNELS_ENABLED` remains a separate ordinary Actions variable, controlled
@@ -84,10 +85,10 @@ mocked GitHub provider in a temporary copy with no backend or credentials. They
 exercise public opt-in, default-disabled publication, private exclusion, and
 rejection of private or undeclared publication targets. These tests never plan or
 apply changes against a live GitHub repository or canonical Terraform state.
-The contracts also check that CI gates grant only repository administrators a
-pull-request-only bypass, archived gates retain their existing permissions,
-release approval retains its policy, reviewers and branch restrictions remain
-configured, and immutable tags cannot be bypassed.
+The contracts also check that CI gates retain permanent owner bypass and the
+existing repository-administrator pull-request exception. Archived gates keep
+their permissions, release approvals keep their reviewers and branch
+restrictions, and immutable tags cannot be bypassed.
 
 After the initial rollout, use unrestricted plans for infrastructure maintenance.
 The canonical `imports.tf` adopts existing resources without replacement. A full

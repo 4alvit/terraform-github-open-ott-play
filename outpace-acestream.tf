@@ -50,14 +50,14 @@ resource "github_team_repository" "bots_outpace_acestream" {
 }
 
 # Activate only after the imported main branch has passed these exact contexts.
-# Match the current public-software review policy; do not add an admin/bot bypass.
+# Match the public-software review policy with only the shared owner exception.
 resource "github_repository_ruleset" "outpace_acestream_main" {
   name        = "Public software - required review and CI"
   repository  = github_repository.outpace_acestream.name
   target      = "branch"
   enforcement = "active"
 
-  # Owners may make an explicit emergency merge through an auditable PR.
+  # Organization owners retain permanent branch recovery authority.
   bypass_actors {
     actor_id    = local.owner_emergency_merge_actor.actor_id
     actor_type  = local.owner_emergency_merge_actor.actor_type
