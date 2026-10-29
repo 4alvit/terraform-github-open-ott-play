@@ -1,5 +1,5 @@
 # Adopt the existing repositories without recreating their history or releases.
-# Preserve their current repository preferences while publishing the source.
+# Preserve repository preferences except the shared merged-branch cleanup policy.
 resource "github_repository" "ottplay_core" {
   dynamic "security_and_analysis" {
     for_each = contains(local.active_public_software_repositories, "ottplay-core") ? [true] : []
@@ -27,7 +27,7 @@ resource "github_repository" "ottplay_core" {
   allow_rebase_merge          = true
   allow_auto_merge            = true
   allow_update_branch         = false
-  delete_branch_on_merge      = false
+  delete_branch_on_merge      = true
   web_commit_signoff_required = false
 
   squash_merge_commit_title   = "COMMIT_OR_PR_TITLE"
@@ -67,7 +67,7 @@ resource "github_repository" "ottplay_android" {
   allow_rebase_merge          = true
   allow_auto_merge            = false
   allow_update_branch         = false
-  delete_branch_on_merge      = false
+  delete_branch_on_merge      = true
   web_commit_signoff_required = false
 
   squash_merge_commit_title   = "COMMIT_OR_PR_TITLE"

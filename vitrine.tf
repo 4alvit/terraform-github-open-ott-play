@@ -1,4 +1,4 @@
-# Existing public repository, adopted with its current settings. Its release CI
+# Existing public repository with the shared merged-branch cleanup policy. Its release CI
 # gate is declared in release-standards.tf; it has no separate Default ruleset.
 resource "github_repository" "ottplay_web_vitrine" {
   name        = "ottplay-web-vitrine"
@@ -14,7 +14,7 @@ resource "github_repository" "ottplay_web_vitrine" {
   allow_squash_merge     = true
   allow_rebase_merge     = true
   allow_auto_merge       = true
-  delete_branch_on_merge = false
+  delete_branch_on_merge = true
 }
 
 resource "github_repository_vulnerability_alerts" "ottplay_web_vitrine" {

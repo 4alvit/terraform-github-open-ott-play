@@ -154,6 +154,14 @@ Never commit credentials, private variable files, saved plans, or state files.
 For syntax and contract tests without credentials or state access, run
 `bash scripts/ci.sh`.
 
+Every managed repository enables `delete_branch_on_merge = true`, including
+adopted repositories. This setting lets GitHub remove eligible pull-request head
+branches after merge; it does not delete local branches, worktrees or unmerged
+work. Branch protection and rulesets still apply. Source changes alone do not
+update GitHub: apply through the canonical workspace and verify the live setting.
+Retaining an imported `false` value would revert a manual GitHub correction on
+the next apply. Mocked policy tests run in `scripts/test-public-security.sh`.
+
 Requires Terraform ≥ 1.15.7.
 
 ## Contributions and public security
