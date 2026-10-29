@@ -57,8 +57,9 @@ the existing `bots` team push access. No license template replaces the upstream
 license. After its source/CI bootstrap, the default branch requires one current review
 and five strict GitHub Actions contexts: `Rust lint`, `Rust test`, `A/B harness
 test`, `HLS audio synthetic`, and `acestream identifier hygiene`. Source archive
-and release packaging tests run inside the Rust and A/B checks. The rules have no
-bypass, and published `v*` tags cannot be rewritten or deleted.
+and release packaging tests run inside the Rust and A/B checks. Branch rules
+retain the shared permanent owner exception; published `v*` tags cannot be
+rewritten or deleted.
 
 The existing `bots` team has `push` access to `ottplay-core` and `ottplay-android`
 to create shared-core artifact update branches and pull requests. These existing
@@ -105,13 +106,14 @@ administrators (role ID 5) can explicitly bypass it when merging a pull request;
 normal merges still require successful strict CI. Removal of existing
 administrator exceptions and new public review rules are deferred until the
 repository is explicitly added to `public_security_enforcement_repositories`.
-This `pull_request` grant does not allow direct pushes and is not added to
-archived repositories. The separate `Default` review rules and release-environment
-approval policies retain their existing settings. Immutable release tags have no
-bypass.
+This role-based `pull_request` grant stays limited to pull requests and is not
+added to archived repositories. Organization owners separately receive permanent
+bypass on both review and CI branch rules, including direct updates and history
+repair. Release-environment approval policies retain their existing settings.
+Immutable release tags have no bypass.
 
 The desired Android policy is now mandatory: one current review and its aggregate
-`CI gate`, with the owner emergency exception. Merge and verify its gate/approval workflow before
+`CI gate`, with the permanent owner exception. Merge and verify its gate/approval workflow before
 applying. The default empty activation set preserves the other staged
 repositories' existing policy.
 
@@ -176,7 +178,7 @@ The [disclosed secure-provider profile](docs/SECURE_PROVIDER.md) builds a review
 `23684613` into `github_repository_ruleset.control_server_main`. The dedicated
 resource requires exactly one approving review for ordinary merges and binds the
 literal `CI gate` to GitHub Actions App ID `15368`. Its name, default-branch scope,
-owner emergency exception, stale-review dismissal, conversation resolution and
+permanent owner exception, stale-review dismissal, conversation resolution and
 allowed merge methods are preserved. Code Owner review and last-push approval
 remain disabled; the one-review correction does not enable either setting.
 Do not add this repository to the generic release-gate set as a replacement.
@@ -191,6 +193,6 @@ the GitHub API, including `require_extra_approval_for_unattributed_changes=false
 The locked provider does not represent that additional field; any provider reset
 requires a separately reviewed, rule-scoped correction before acceptance.
 
-## Emergency merge authority
+## Permanent owner authority
 
-Organization owners can use a [documented emergency exception](docs/public-security.md#emergency-owner-merges) through a pull request when necessary. Ordinary review and CI requirements remain; this grant does not authorize direct pushes or tag rewrites. Terraform must be applied to the canonical state and live rules verified before relying on it.
+Organization owners have a [permanent branch bypass](docs/public-security.md#permanent-owner-bypass), including direct updates and history repair. Configured review and CI requirements remain for actors without an applicable bypass, and immutable tag rules are unchanged. Terraform must be applied to the canonical state and live rules verified before relying on it.

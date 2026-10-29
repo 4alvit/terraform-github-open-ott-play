@@ -32,7 +32,7 @@ run "review_requires_one_current_approval_with_owner_exception" {
           length([for actor in policy.bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
           alltrue([
             for actor in policy.bypass_actors :
-            coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+            coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "always"
             if actor.actor_type == local.owner_emergency_merge_actor.actor_type
           ]) &&
           length([for actor in policy.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
@@ -43,7 +43,7 @@ run "review_requires_one_current_approval_with_owner_exception" {
         one(one(policy.rules).pull_request).required_review_thread_resolution
       )
     ])
-    error_message = "New public review rules must have only the owner emergency exception and require current reviews."
+    error_message = "New public review rules must preserve current reviews and grant permanent bypass only to the owner."
   }
 }
 
@@ -96,7 +96,7 @@ run "android_requires_actual_ci_gate_with_owner_exception" {
         length([for actor in github_repository_ruleset.public_review["ottplay-android"].bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
         alltrue([
           for actor in github_repository_ruleset.public_review["ottplay-android"].bypass_actors :
-          coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "pull_request"
+          coalesce(actor.actor_id, 0) == coalesce(local.owner_emergency_merge_actor.actor_id, 0) && actor.bypass_mode == "always"
           if actor.actor_type == local.owner_emergency_merge_actor.actor_type
         ]) &&
         length([for actor in github_repository_ruleset.public_review["ottplay-android"].bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0
@@ -113,14 +113,14 @@ run "android_requires_actual_ci_gate_with_owner_exception" {
   }
 }
 
-run "emergency_merge_is_limited_to_the_owner_and_pull_requests" {
+run "permanent_branch_bypass_is_limited_to_the_owner" {
   command = plan
   assert {
     condition = (
       local.owner_emergency_merge_actor.actor_type == "OrganizationAdmin" &&
       local.owner_emergency_merge_actor.actor_id == null &&
-      local.owner_emergency_merge_actor.bypass_mode == "pull_request"
+      local.owner_emergency_merge_actor.bypass_mode == "always"
     )
-    error_message = "Only the declared owner may use the emergency PR exception; repository roles, automation and direct pushes are not added."
+    error_message = "Only the declared organization owner receives permanent branch bypass; no repository-role or automation grants are added."
   }
 }

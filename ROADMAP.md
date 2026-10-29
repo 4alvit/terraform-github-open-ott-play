@@ -11,4 +11,4 @@ Discuss changes through public issues and pull requests. These are plans rather 
 
 ## Non-goals
 
-No automatic production apply, blanket administrator bypass, hidden state migration, storage of plaintext secrets in Git, or authority over repositories outside the declared inventory.
+No automatic production apply, expanding bypass beyond the declared owners and existing actor grants, hidden state migration, storage of plaintext secrets in Git, or authority over repositories outside the declared inventory.

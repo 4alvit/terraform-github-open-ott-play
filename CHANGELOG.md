@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Keep permanent organization-owner bypass on managed branch rules, including direct updates and history repair. Preserve other actor grants, configured checks, immutable tag protection and release approvals.
+
 ## [0.2.0] - 2026-10-17
 
 ### Security
