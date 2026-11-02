@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Complete the verified Core and Vitrine review rollout: require one current approval, preserve strict CI and organization-owner emergency bypass, and retire their legacy repository-administrator CI exception.
+
 - Update the disclosed local provider to 6.13.0-openssf.3 with x/net 0.62.0 and its compatible transitive modules, addressing GO-2026-6860 and GO-2026-6866. Preserve the complete source-qualified lock graph; existing HCP providers and infrastructure are unchanged.
 
 - Keep permanent organization-owner bypass on managed branch rules, including direct updates and history repair. Preserve other actor grants, configured checks, immutable tag protection and release approvals.

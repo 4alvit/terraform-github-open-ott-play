@@ -1,5 +1,5 @@
-# Android review and CI are mandatory after its workflow rollout. Other
-# repositories remain staged until their approval and CI automation is verified.
+# Android, Core and Vitrine have verified approval and CI automation.
+# Their review rules are mandatory; other rollout choices remain explicit.
 variable "public_security_enforcement_repositories" {
   description = "Audited public repositories explicitly enabled for new review rules and removal of legacy administrator bypasses; owner emergency merges remain available"
   type        = set(string)
@@ -38,7 +38,10 @@ locals {
 
 locals {
   enforced_public_security_repositories = setintersection(
-    setunion(toset(["ottplay-android"]), var.public_security_enforcement_repositories),
+    setunion(
+      toset(["ottplay-android", "ottplay-core", "ottplay-web-vitrine"]),
+      var.public_security_enforcement_repositories,
+    ),
     local.active_public_software_repositories,
   )
 }

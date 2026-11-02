@@ -38,11 +38,13 @@ presence of a badge does not approve a bypass operation.
 Live metadata excludes private and archived repositories from new protections.
 The required review count is one approval from a reviewer with Write access.
 Automation may provide that approval. Keep this count at one when reconciling
-Terraform with GitHub. The desired Android policy requires one current review and strict
-GitHub Actions `CI gate` (`15368`) with the documented permanent owner exception. Its aggregate gate validates the
-selected host/device jobs and only permits explicit documentation-only skips.
-Other new review rules and removal of existing administrator exceptions require
-explicit membership in `public_security_enforcement_repositories`.
+Terraform with GitHub. Android, Core and Vitrine require one current review with
+the documented permanent owner exception. Android keeps its strict GitHub Actions
+`CI gate` (`15368`); Core keeps its eleven existing app-bound classic checks;
+Vitrine keeps its existing strict `CI gate`. Their verified approval automation
+runs through the shared workflows. Additional rollout choices and removal of
+other existing administrator exceptions require explicit membership in
+`public_security_enforcement_repositories`.
 Existing checks, signatures and immutable-tag protections remain separate
 requirements.
 
@@ -60,20 +62,23 @@ preserving bypass actors, Code Owners and CI/scanning requirements. The profile
 CI gate is bound to the GitHub Actions app that publishes it.
 
 State adoption imports existing workflow permissions and bot-team grants. It
-preserves the core repository's enabled auto-merge. Android policy activation is a
-separate reviewed change from state adoption;
-other staged review rules remain inactive by default.
+preserves the core repository's enabled auto-merge. Review activation is separate
+from state adoption. Android, Core and Vitrine are now mandatory members of the
+review rollout; an empty optional activation variable cannot deactivate them.
 
 Before adding a repository to `public_security_enforcement_repositories`, verify
 its required checks and permitted reviewers, including auto-approval if the
 repository uses it. Android reuses the shared metadata-only bot approval on the
 `automerge`
 label. Merge and verify its approval workflow and aggregate `CI gate` before
-applying the mandatory ruleset, then read back the live rule. Core still needs
-its own verified automation before activation; importing existing bot access
-alone must not impose a new review blocker. The vitrine's new review rule is
-also deferred to the explicit rollout. Existing protected repositories retain
-their current policies until individually selected.
+applying the mandatory ruleset, then read back the live rule. Core PR #135 and
+Vitrine PR #89 demonstrated an approval on the exact head plus passing required
+checks as qualification for their 2026-11-02 rollout. Their previously staged gap allowed
+changes without a required review; importing their existing objects alone did
+not close it. The rollout adds the existing review ruleset and removes the
+legacy repository-administrator CI exception, preserving the organization-owner
+exception and all required checks. Existing protected repositories retain their
+current policies until individually selected.
 
 Review every full plan against the canonical existing state; do not apply from
 empty or unrelated state. Imports must use the actual remote identities, and

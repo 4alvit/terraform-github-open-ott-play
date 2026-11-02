@@ -8,11 +8,11 @@ mock_provider "github" {
   }
 }
 
-run "android_policy_is_mandatory_and_other_reviews_remain_staged" {
+run "verified_public_reviews_are_mandatory" {
   command = plan
   assert {
-    condition     = toset(keys(github_repository_ruleset.public_review)) == toset(["ottplay-android"])
-    error_message = "Android must be protected by default without enabling other staged repositories."
+    condition     = toset(keys(github_repository_ruleset.public_review)) == toset(["ottplay-android", "ottplay-core", "ottplay-web-vitrine"])
+    error_message = "Android, Core and Vitrine must require review even with an empty optional activation set."
   }
 }
 
