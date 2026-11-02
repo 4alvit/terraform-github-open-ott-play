@@ -104,18 +104,21 @@ Public repositories listed in `release_gate_repositories` also have the additive
 release CI gate. Repository
 administrators (role ID 5) can explicitly bypass it when merging a pull request;
 normal merges still require successful strict CI. Removal of existing
-administrator exceptions and new public review rules are deferred until the
-repository is explicitly added to `public_security_enforcement_repositories`.
+administrator exceptions and new public review rules require verified approval
+automation. Android, Core and Vitrine have completed that rollout; additional
+repositories remain selected through `public_security_enforcement_repositories`.
 This role-based `pull_request` grant stays limited to pull requests and is not
 added to archived repositories. Organization owners separately receive permanent
 bypass on both review and CI branch rules, including direct updates and history
 repair. Release-environment approval policies retain their existing settings.
 Immutable release tags have no bypass.
 
-The desired Android policy is now mandatory: one current review and its aggregate
-`CI gate`, with the permanent owner exception. Merge and verify its gate/approval workflow before
-applying. The default empty activation set preserves the other staged
-repositories' existing policy.
+Android, Core and Vitrine now require one current approving review, with the
+permanent owner exception. Their shared approval automation and required CI were
+verified before activation. Android retains its strict aggregate `CI gate`;
+Core retains its eleven app-bound classic checks and Vitrine its existing strict
+`CI gate`. An empty optional activation set does not disable these three verified
+review rules. Other repositories retain their existing policy.
 
 ## Usage
 
