@@ -1,5 +1,15 @@
 version: 2
 updates:
+  # These are copied locks, not a standalone Go source module. Resolve updates
+  # against the pinned upstream source with scripts/build_secure_provider.py.
+  # Ignore is required: a zero PR limit alone does not disable security PRs.
+  - package-ecosystem: gomod
+    directory: /security/provider
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    ignore:
+      - dependency-name: "*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
