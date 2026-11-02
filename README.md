@@ -40,6 +40,7 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `outpace-acestream` — public Rust AceStream engine derived from Outpace under AGPL-3.0-or-later
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
+- `ottplay-roku` — existing public BrightScript/SceneGraph client
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
@@ -65,6 +66,22 @@ The existing `bots` team has `push` access to `ottplay-core` and `ottplay-androi
 to create shared-core artifact update branches and pull requests. These existing
 grants are imported, and the core repository's enabled auto-merge is preserved. This uses the
 same team access model as FOSS and SWOP.
+
+`roku.tf` adopts the existing Roku repository, vulnerability alerts and Dependabot
+security updates through the three explicit imports in `imports.tf`. Its repository
+preferences remain unchanged. Apply only a saved full plan containing those imports
+and creation of the bot team's repository write grant and default-branch ruleset;
+investigate any unrelated update, deletion or replacement first. The write grant
+precedes the ruleset so the bot can supply its required review.
+
+The Roku policy requires one current approval, resolved conversations and the exact
+GitHub Actions checks `BrightScript and package / Node 22.23.4`, `BrightScript and
+package / Node 24.22.1`, and `scan / CodeQL Analysis` (publisher app 15368). It retains
+the shared organization-owner exception and prevents default-branch deletion and
+force pushes. The CodeQL check covers Actions, JavaScript helpers and Python tools;
+BrightScript and SceneGraph remain covered by the existing package/test jobs.
+After apply, read back the three checks, bot write permission and security settings;
+then require a fresh full plan with no changes.
 
 ### Security
 
