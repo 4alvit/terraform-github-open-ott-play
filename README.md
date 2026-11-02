@@ -218,6 +218,17 @@ confirm successful replacement checks on the exact reviewed source revision.
 After applying, compare the full protection response; all other fields must
 remain unchanged. The mock tests exclude the import and never access live state.
 
+The released GitHub provider 6.13.0 has an upstream
+[duplicate-context update bug](https://github.com/integrations/terraform-provider-github/issues/3420).
+Its read operation populates both legacy contexts and publisher-bound checks;
+an update then sends duplicate names and GitHub rejects it with HTTP 422.
+Do not remove protection, omit publisher IDs, edit state, or set `contexts = []`
+(the latter conflicts with `checks` in the provider schema). Until the
+[upstream fix](https://github.com/integrations/terraform-provider-github/pull/3585)
+is released, use the narrow reconciliation documented in
+[the Core protection runbook](docs/core-protection.md), then require a fresh full
+Terraform plan showing no drift. Keep Terraform's desired checks authoritative.
+
 ## Permanent owner authority
 
 Organization owners have a [permanent branch bypass](docs/public-security.md#permanent-owner-bypass), including direct updates and history repair. Configured review and CI requirements remain for actors without an applicable bypass, and immutable tag rules are unchanged. Terraform must be applied to the canonical state and live rules verified before relying on it.
