@@ -2,11 +2,11 @@
 
 The official GitHub provider 6.13.0 binary was built with Go 1.26.4 and its dependency scan contains older findings. Upstream currently offers no newer release that resolves them all. The checked-in default lock files still refer to that official binary; this change does not silently replace a production provider or alter infrastructure.
 
-For the supported independent local deployment profile, build the same upstream 6.13.0 source commit `20728bb30c112287ac3e8243cdb0307a45c6a0a0` with Go 1.27.2 and the exact reviewed module files under `security/provider/`. This derivative is labelled 6.13.0-openssf.1, retains its MPL 2.0 upstream license, and updates x/net 0.60.0, x/text 0.42.0, x/crypto 0.57.0 and grpc 1.83.2 along with required transitive versions. The manifest pins the source archive and module-file hashes. It is a disclosed local derivative, not a claim that upstream has released a fixed binary.
+For the supported independent local deployment profile, build the same upstream 6.13.0 source commit `20728bb30c112287ac3e8243cdb0307a45c6a0a0` with Go 1.27.3 and the exact reviewed module files under `security/provider/`. This derivative is labelled 6.13.0-openssf.2, retains its MPL 2.0 upstream license, and updates x/net 0.60.0, x/text 0.42.0, x/crypto 0.57.0 and grpc 1.83.2 along with required transitive versions. Revision 2 also updates go-jose from 4.1.4 to 4.1.6 for [GHSA-mgcc-cww5-fp2q](https://github.com/advisories/GHSA-mgcc-cww5-fp2q), preserving the other 66 requirements. Its compiler is Go 1.27.3, which also addresses [GO-2026-6809](https://pkg.go.dev/vuln/GO-2026-6809) in certificate verification; source qualification rejected the former Go 1.27.2 compiler. The manifest pins the source archive and module-file hashes. It is a disclosed local derivative, not a claim that upstream has released a fixed binary.
 
 ## Reproduce the derivative
 
-Install Go 1.27.2 from its official distribution and verify its published checksum. Pass its actual executable path; setting GOTOOLCHAIN alone is insufficient proof of the selected compiler. Use a new output directory outside this checkout:
+Install Go 1.27.3 from its official distribution and verify its published checksum. Pass its actual executable path; setting GOTOOLCHAIN alone is insufficient proof of the selected compiler. Use a new output directory outside this checkout:
 
 ```sh
 python3 scripts/build_secure_provider.py --go /VERIFIED/go/bin/go \
@@ -15,7 +15,29 @@ python3 scripts/build_secure_provider.py --go /VERIFIED/go/bin/go \
 
 Supported target choices are linux_amd64, linux_arm64, darwin_amd64 and darwin_arm64. The builder uses verified OpenSSL 3 TLS at security level 3 for GitHub/codeload archives, rejects HTTP/off-site redirects, forces Go FIPS TLS for module/scanner downloads, and uses an isolated home/cache, rejects unsafe archive entries, excludes operator credentials, verifies module hashes, runs source govulncheck and upstream nonacceptance unit tests, then records the actual compiler and binary digest in provenance.json. Acceptance tests are intentionally excluded because they create real GitHub resources. The builder never runs Terraform, installs a provider, edits a lock file or applies infrastructure.
 
-On 2026-10-16 the Linux ARM64 build completed with actual Go 1.27.2, no source-reachable vulnerabilities, passing nonacceptance unit tests and SHA256 `67fd0dab765543cd3f2c5214b074b996a9cebcd391da1cead4dca45ea026ce27`. Binary-only scanners may still report unused wildcard OpenPGP packages; source imports/call paths are checked independently. Subsequent vulnerability database changes can fail a new build and must be investigated, not ignored.
+On 2026-10-16 revision 1's Linux ARM64 build completed with actual Go 1.27.2, no source-reachable vulnerabilities, passing nonacceptance unit tests and SHA256 `67fd0dab765543cd3f2c5214b074b996a9cebcd391da1cead4dca45ea026ce27`. That historical result does not qualify revision 2. Use its own CI source qualification and reproduce the transport tests on the intended platform before deployment. Binary-only scanners may still report unused wildcard OpenPGP packages; source imports/call paths are checked independently. Subsequent vulnerability database changes can fail a new build and must be investigated, not ignored.
+
+## Update dependencies in their actual source context
+
+`security/provider` contains copied lock files, not the provider's Go source. Running a generic Go dependency updater there can remove every requirement and empty `go.sum`. The repository's required validation now checks manifest hashes, a nonempty requirement graph, and both module and archive checksums for every requirement. An empty graph is rejected even when its manifest hashes have been refreshed.
+
+The same required validation builds the pinned upstream source whenever provider inputs, its tests, or CI workflows change. It resolves all production and test imports with `-mod=readonly`, runs source vulnerability analysis and nonacceptance tests, and builds the binary. Scheduled, manual, unknown, or incomplete-history events also require the source build. A complete diff containing only unrelated changes can skip this expensive build; the offline snapshot check still runs. A failed source qualification fails the existing `CI gate` and prevents normal automerge.
+
+Use the existing builder for future updates, with a new derivative revision and an exact module release:
+
+```sh
+# Replace the module/version with the reviewed update. Do not use @latest.
+python3 scripts/build_secure_provider.py --go /VERIFIED/go/bin/go \
+  --update-module example.org/module@v1.2.3 \
+  --build-version 6.13.0-openssf.3 \
+  --output /PRIVATE/github-provider-update --platform linux_amd64
+```
+
+The builder verifies the pinned upstream archive, overlays the current snapshot, and runs `go get` inside that real source tree. It exports `go.mod`, `go.sum`, `manifest.json`, and provenance into the new output directory only after qualification passes. Review the module diff and copy those three files into `security/provider/` in a PR. It never edits the tracked snapshot or Terraform locks automatically. Failed attempts retain diagnostic logs but do not export a qualified snapshot.
+
+Dependabot's Go updates for this copied directory are explicitly ignored; GitHub Actions updates remain enabled. [GitHub documents](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference) that a zero version-PR limit alone does not suppress security update PRs, so the configuration also uses a dependency ignore rule. This does not disable vulnerability alerts. Maintainers must still assess alerts and update through the source-aware procedure; scheduled source scans provide an additional check.
+
+If qualification reports missing imports or a changed snapshot, restore the complete last reviewed files before resolving the update. Do not regenerate locks in the source-free directory. If vulnerability analysis fails, examine `source-vulnerabilities.log` and its import traces. If tests fail, inspect `unit-tests.log`; do not bypass the gate or enable acceptance tests against a real account as a workaround.
 
 ## Validate without touching production state
 
@@ -28,7 +50,7 @@ python3 scripts/check_secure_provider.py --tofu /VERIFIED/tofu \
 
 This helper verifies provenance against the repository manifest and binary digest, stages a temporary source copy excluding state, private variable files and symlinks, adapts the already documented OpenTofu compatibility syntax, and uses only a local provider mirror. It replaces only disposable lock files because the derivative has a different digest. It runs format, backend-disabled init and schema validation; never plan/apply or a remote backend. The original repository, lock files, credentials and resources stay untouched. Review the temporary derivative's new dependency set before any separate production migration.
 
-The original complete CI and mock-provider plan suites still validate repository policies with the official provider schema. A separate real transport test exercises the derivative and engine with synthetic credentials and no external network: both module download and provider API paths accept RSA 2048, ordinary mode accepts RSA 2047 as calibration, and FIPS mode rejects RSA 2047 before any HTTP request. All 8 cases passed with OpenTofu 1.13.1 and the derivative on Linux ARM64. Run it on Linux using the same trusted binaries and Python cryptography:
+The original complete CI and mock-provider plan suites still validate repository policies with the official provider schema. A separate real transport test exercises the derivative and engine with synthetic credentials and no external network: both module download and provider API paths accept RSA 2048, ordinary mode accepts RSA 2047 as calibration, and FIPS mode rejects RSA 2047 before any HTTP request. All 8 cases passed with OpenTofu 1.13.1 and revision 1 on Linux ARM64. Repeat the tests for a new derivative revision on Linux using the same trusted binaries and Python cryptography:
 
 ```sh
 TLS_TEST_TERRAFORM=/VERIFIED/tofu \

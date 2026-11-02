@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: '3.12'
@@ -47,6 +48,26 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/secure-provider-tests"
           "$RUNNER_TEMP/secure-provider-tests/bin/pip" install --require-hashes -r requirements-security-tests.txt
           "$RUNNER_TEMP/secure-provider-tests/bin/python" -m unittest discover -s tests -p 'test_secure*.py'
+      - name: Verify provider snapshot and classify source changes
+        id: provider
+        run: python3 scripts/check_provider_snapshot.py --github-output
+      - name: Set up the exact derivative compiler
+        if: steps.provider.outputs.qualify == 'true'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.3'
+          cache: false
+      - name: Qualify provider against real upstream source
+        if: steps.provider.outputs.qualify == 'true'
+        run: |
+          if ! python3 scripts/build_secure_provider.py --go "$(command -v go)" \
+            --output "$RUNNER_TEMP/secure-provider-qualified" --platform linux_amd64; then
+            for logfile in "$RUNNER_TEMP/secure-provider-qualified/"*.log; do
+              if [ -f "$logfile" ]; then tail -n 100 "$logfile"; fi
+            done
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/secure-provider-qualified/provenance.json"
       - name: Run local checks
         run: bash scripts/ci.sh
       - name: Verify real Terraform and provider TLS boundaries

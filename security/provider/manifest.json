@@ -5,12 +5,12 @@
   "source_root": "terraform-provider-github-20728bb30c112287ac3e8243cdb0307a45c6a0a0",
   "provider_address": "registry.terraform.io/integrations/github",
   "upstream_version": "6.13.0",
-  "build_version": "6.13.0-openssf.1",
+  "build_version": "6.13.0-openssf.2",
   "binary_name": "terraform-provider-github_v6.13.0",
-  "go_version": "go1.27.2",
+  "go_version": "go1.27.3",
   "govulncheck_version": "v1.9.0",
   "module_files": {
-    "go.mod": "9551238c5462289a26b08eeeca1ac3af3244b2a938595d6e2b9d27704875213b",
-    "go.sum": "7152d73c8cb2ae288054feb2b86fe421a7b226fb8f8402ebb0d607f9eaebc92c"
+    "go.mod": "e7039dd31f9ee3a4067c197f5cc6010e3ceb0f0aa709f87d6b7ab73e0ca9cfd7",
+    "go.sum": "94d068c132a11d645aa8a46e90a3ff241da9ae795727b820fdb08b36ee1d6138"
   }
 }

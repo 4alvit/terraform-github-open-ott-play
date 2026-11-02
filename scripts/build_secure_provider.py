@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import ssl
 import subprocess
@@ -18,6 +19,72 @@ from urllib.parse import urlsplit
 def digest(path):
     """Return the integrity digest for a local artifact."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate_snapshot(pinned, manifest):
+    """Reject an empty or incomplete copied module even if its hashes were updated."""
+    if set(manifest["module_files"]) != {"go.mod", "go.sum"}:
+        raise ValueError("The provider snapshot must contain go.mod and go.sum")
+    for name, expected in manifest["module_files"].items():
+        if digest(pinned / name) != expected:
+            raise ValueError(f"Pinned module-file checksum mismatch: {name}")
+    module = (pinned / "go.mod").read_text()
+    if not re.search(
+        r"^module github\.com/integrations/terraform-provider-github/v6\s*$",
+        module,
+        re.MULTILINE,
+    ):
+        raise ValueError("Unexpected provider module")
+    requirements = []
+    in_block = False
+    for line in module.splitlines():
+        line = line.split("//", 1)[0].strip()
+        if line == "require (":
+            in_block = True
+        elif in_block and line == ")":
+            in_block = False
+        elif line.startswith("require ") or (in_block and line):
+            fields = line.removeprefix("require ").split()
+            if len(fields) != 2 or not fields[1].startswith("v"):
+                raise ValueError("Malformed provider requirement")
+            requirements.append(tuple(fields))
+    if (
+        in_block
+        or not requirements
+        or len({name for name, _ in requirements}) != len(requirements)
+    ):
+        raise ValueError("Provider requirements are empty, incomplete or duplicated")
+    sums = set()
+    for line in (pinned / "go.sum").read_text().splitlines():
+        fields = line.split()
+        if len(fields) != 3 or not re.fullmatch(r"h1:[A-Za-z0-9+/]{43}=", fields[2]):
+            raise ValueError("Malformed provider checksum")
+        sums.add(tuple(fields[:2]))
+    missing = [
+        f"{name} {version}{suffix}"
+        for name, version in requirements
+        for suffix in ("", "/go.mod")
+        if (name, version + suffix) not in sums
+    ]
+    if missing:
+        raise ValueError("Missing provider checksums: " + ", ".join(missing))
+    return len(requirements)
+
+
+def update_request(module, version, manifest):
+    """Accept an exact module release and a new, disclosed derivative identity."""
+    if not re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._~/-]+@v[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.+-]+)?",
+        module,
+    ):
+        raise ValueError("Update requires an exact module@vX.Y.Z release")
+    prefix = manifest["upstream_version"] + "-openssf."
+    if not version.startswith(prefix) or not version[len(prefix) :].isdigit():
+        raise ValueError("Update requires a new upstream-openssf.N build version")
+    if int(version[len(prefix) :]) <= int(
+        manifest["build_version"].removeprefix(prefix)
+    ):
+        raise ValueError("The derivative build version must increase")
 
 
 def source_context():
@@ -118,7 +185,7 @@ def main():
     """Build and qualify a pinned, explicitly labelled derivative provider."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--go", required=True, type=Path, help="Verified Go 1.27.2 executable"
+        "--go", required=True, type=Path, help="Verified Go executable matching the snapshot manifest"
     )
     parser.add_argument(
         "--output", required=True, type=Path, help="New artifact directory"
@@ -127,6 +194,12 @@ def main():
         "--platform",
         choices=("linux_amd64", "linux_arm64", "darwin_amd64", "darwin_arm64"),
         required=True,
+    )
+    parser.add_argument(
+        "--update-module", help="Exact module@version, resolved in upstream source"
+    )
+    parser.add_argument(
+        "--build-version", help="New disclosed derivative version for an update"
     )
     args = parser.parse_args()
     go = args.go.resolve(strict=True)
@@ -137,9 +210,11 @@ def main():
         )
     pinned = Path(__file__).resolve().parents[1] / "security/provider"
     manifest = json.loads((pinned / "manifest.json").read_text())
-    for name, expected in manifest["module_files"].items():
-        if digest(pinned / name) != expected:
-            raise SystemExit(f"Pinned module-file checksum mismatch: {name}")
+    validate_snapshot(pinned, manifest)
+    if bool(args.update_module) != bool(args.build_version):
+        parser.error("--update-module and --build-version must be used together")
+    if args.update_module:
+        update_request(args.update_module, args.build_version, manifest)
     with tempfile.TemporaryDirectory(prefix="secure-provider-") as temporary:
         temporary = Path(temporary)
         (temporary / "tmp").mkdir()
@@ -160,10 +235,33 @@ def main():
         source = temporary / manifest["source_root"]
         for name in manifest["module_files"]:
             shutil.copyfile(pinned / name, source / name)
-            shutil.copyfile(pinned / name, output / name)
         shutil.copyfile(source / "LICENSE", output / "UPSTREAM-LICENSE")
+        if args.update_module:
+            run(
+                [go, "get", args.update_module],
+                source,
+                environment,
+                output / "update.log",
+            )
         run([go, "mod", "download"], source, environment, output / "download.log")
         run([go, "mod", "verify"], source, environment, output / "modules.log")
+        # A lock-only directory cannot prove that the actual provider can import
+        # its dependencies. Include test imports and prohibit automatic repairs.
+        run(
+            [go, "list", "-mod=readonly", "-deps", "-test", "./..."],
+            source,
+            environment,
+            output / "source-imports.log",
+        )
+        if args.update_module:
+            manifest = {
+                **manifest,
+                "build_version": args.build_version,
+                "module_files": {
+                    name: digest(source / name) for name in manifest["module_files"]
+                },
+            }
+        validate_snapshot(source, manifest)
         run(
             [
                 go,
@@ -181,7 +279,17 @@ def main():
             output / "source-vulnerabilities.log",
         )
         run(
-            [go, "test", "-p", "2", "-short", "-skip", "^TestAcc", "./..."],
+            [
+                go,
+                "test",
+                "-mod=readonly",
+                "-p",
+                "2",
+                "-short",
+                "-skip",
+                "^TestAcc",
+                "./...",
+            ],
             source,
             environment,
             output / "unit-tests.log",
@@ -225,6 +333,11 @@ def main():
                 raise SystemExit(
                     f"Build unexpectedly changed pinned dependencies: {name}"
                 )
+        # Export an update only after every qualification stage passes. The
+        # tracked snapshot and Terraform provider lock files are never edited.
+        for name in manifest["module_files"]:
+            shutil.copyfile(source / name, output / name)
+        (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         provenance = {
             **manifest,
             "platform": args.platform,
