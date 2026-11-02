@@ -6,10 +6,11 @@ trap 'rm -rf "$temporary"' EXIT
 mkdir -p "$temporary/tests" "$temporary/provider-cache"
 touch "$temporary/empty.tfrc"
 cp admin-merge-policy.tf "$temporary/"
-cp public-security.tf outpace-acestream.tf native-repositories.tf vitrine.tf core-branch-protection.tf tests/public-security-main.tf.fixture "$temporary/"
+cp public-security.tf outpace-acestream.tf native-repositories.tf vitrine.tf core-branch-protection.tf roku.tf tests/public-security-main.tf.fixture "$temporary/"
 mv "$temporary/public-security-main.tf.fixture" "$temporary/main.tf"
 cp tests/public-security.tftest.hcl tests/outpace-security.tftest.hcl "$temporary/tests/"
 cp tests/branch-cleanup.tftest.hcl tests/core-branch-protection.tftest.hcl "$temporary/tests/"
+cp tests/roku-security.tftest.hcl "$temporary/tests/"
 if [[ -f .terraform.lock.hcl ]]; then
   cp .terraform.lock.hcl "$temporary/"
 fi
@@ -19,4 +20,4 @@ test_terraform() {
     terraform -chdir="$temporary" "$@"
 }
 test_terraform init -backend=false -input=false -lockfile=readonly -no-color
-test_terraform test -no-color
+test_terraform test -var=github_organization=open-ott-play -no-color

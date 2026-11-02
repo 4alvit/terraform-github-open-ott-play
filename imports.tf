@@ -50,3 +50,18 @@ import {
   to = github_team_repository.bots_ottplay_android
   id = "19138503:ottplay-android"
 }
+
+# These objects exist already. An import failure must be investigated; do not
+# remove these blocks to let Terraform create a replacement repository.
+import {
+  to = github_repository.ottplay_roku
+  id = "ottplay-roku"
+}
+import {
+  to = github_repository_vulnerability_alerts.ottplay_roku
+  id = "ottplay-roku"
+}
+import {
+  to = github_repository_dependabot_security_updates.ottplay_roku
+  id = "ottplay-roku"
+}
