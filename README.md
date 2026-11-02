@@ -201,6 +201,23 @@ the GitHub API, including `require_extra_approval_for_unattributed_changes=false
 The locked provider does not represent that additional field; any provider reset
 requires a separately reviewed, rule-scoped correction before acceptance.
 
+### Existing Core qualification contexts
+
+`core-branch-import.tf` adopts the existing classic `ottplay-core:main`
+protection into `github_branch_protection_v3.core_main`. It preserves all eleven
+required checks and their GitHub App IDs, strict branch freshness, conversation
+resolution, and the existing owner/review settings. Only the four scope,
+portable, browser-client, and wire-contract context names move to their existing
+`check-0 / ...` names from the reusable Quality gate.
+
+Apply this change together with the Core workflow change that removes duplicate
+PR triggers from `core.yml`. Main delivery and release qualification keep their
+existing workflow IDs and source-bound evidence. Before applying, require a
+saved plan containing only this import and four context substitutions, and
+confirm successful replacement checks on the exact reviewed source revision.
+After applying, compare the full protection response; all other fields must
+remain unchanged. The mock tests exclude the import and never access live state.
+
 ## Permanent owner authority
 
 Organization owners have a [permanent branch bypass](docs/public-security.md#permanent-owner-bypass), including direct updates and history repair. Configured review and CI requirements remain for actors without an applicable bypass, and immutable tag rules are unchanged. Terraform must be applied to the canonical state and live rules verified before relying on it.
