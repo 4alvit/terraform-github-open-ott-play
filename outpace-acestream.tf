@@ -40,7 +40,7 @@ resource "github_repository_vulnerability_alerts" "outpace_acestream" {
 
 resource "github_repository_dependabot_security_updates" "outpace_acestream" {
   repository = github_repository.outpace_acestream.id
-  enabled    = true
+  enabled    = false
 }
 
 resource "github_team_repository" "bots_outpace_acestream" {

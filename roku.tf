@@ -48,7 +48,7 @@ resource "github_repository_vulnerability_alerts" "ottplay_roku" {
 
 resource "github_repository_dependabot_security_updates" "ottplay_roku" {
   repository = github_repository.ottplay_roku.id
-  enabled    = true
+  enabled    = false
 }
 
 # The existing bot has only the organization's default read permission here.

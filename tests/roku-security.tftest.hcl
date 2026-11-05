@@ -29,7 +29,7 @@ run "roku_adoption_preserves_repository_preferences_and_enables_security" {
       !github_repository.ottplay_roku.web_commit_signoff_required &&
       one(one(github_repository.ottplay_roku.security_and_analysis).secret_scanning).status == "enabled" &&
       one(one(github_repository.ottplay_roku.security_and_analysis).secret_scanning_push_protection).status == "enabled" &&
-      github_repository_dependabot_security_updates.ottplay_roku.enabled
+      !github_repository_dependabot_security_updates.ottplay_roku.enabled
     )
     error_message = "Roku adoption must preserve the existing public repository preferences and its enabled security features."
   }
