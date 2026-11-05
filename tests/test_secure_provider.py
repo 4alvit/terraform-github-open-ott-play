@@ -160,6 +160,7 @@ class ProviderScopeTests(unittest.TestCase):
             ".github/workflows/validate.yml",
             "tests/test_secure_provider.py",
             "renovate.json",
+            "requirements-security-tests.in",
         ):
             with self.subTest(path=path):
                 self.assertTrue(SCOPE.relevant(path))

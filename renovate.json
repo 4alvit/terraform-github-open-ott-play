@@ -8,7 +8,8 @@
     "custom.regex",
     "custom.jsonata",
     "terraform",
-    "pip_requirements"
+    "pip_requirements",
+    "pip-compile"
   ],
   "ignorePaths": [
     "**/vendor/**",
@@ -20,6 +21,19 @@
   "pip_requirements": {
     "managerFilePatterns": [
       "/(^|/)requirements[^/]*\\.(txt|pip)$/"
+    ],
+    "ignorePaths": [
+      "**/vendor/**",
+      "**/node_modules/**",
+      "**/fixtures/**",
+      "security/provider/**",
+      "tools/browser-compatibility/**",
+      "requirements-security-tests.txt"
+    ]
+  },
+  "pip-compile": {
+    "managerFilePatterns": [
+      "/^requirements-security-tests\\.txt$/"
     ]
   }
 }
