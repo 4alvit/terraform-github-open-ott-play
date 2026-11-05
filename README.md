@@ -53,7 +53,7 @@ GitHub Actions workflow with secrets held separately from the published source.
 `outpace-acestream` is an independent public repository, created empty so the
 reviewed Outpace history and its AGPL-3.0-or-later notices can be imported intact.
 Terraform protects the repository from destruction, enables secret scanning and
-push protection, vulnerability alerts and Dependabot security updates, and grants
+push protection and vulnerability alerts, disables Dependabot security-update PRs, and grants
 the existing `bots` team push access. No license template replaces the upstream
 license. After its source/CI bootstrap, the default branch requires one current review
 and five strict GitHub Actions contexts: `Rust lint`, `Rust test`, `A/B harness
@@ -68,7 +68,8 @@ grants are imported, and the core repository's enabled auto-merge is preserved. 
 same team access model as FOSS and SWOP.
 
 `roku.tf` adopts the existing Roku repository, vulnerability alerts and Dependabot
-security updates through the three explicit imports in `imports.tf`. Its repository
+security-update setting through the three explicit imports in `imports.tf`, keeping
+that update producer disabled. Its repository
 preferences remain unchanged. Apply only a saved full plan containing those imports
 and creation of the bot team's repository write grant and default-branch ruleset;
 investigate any unrelated update, deletion or replacement first. The write grant
@@ -89,7 +90,7 @@ Separate security resources cover the profile, FOSS, SWOP and vitrine
 repositories:
 
 - Vulnerability alerts (`github_repository_vulnerability_alerts`)
-- Dependabot security updates (`github_repository_dependabot_security_updates`)
+- Disabled Dependabot security-update setting (`github_repository_dependabot_security_updates`); Renovate owns update PRs
 
 The retired `foss-cloudflare-infrastructure` repository and its old security,
 ruleset and bot-access bindings are forgotten with `destroy = false`, before
