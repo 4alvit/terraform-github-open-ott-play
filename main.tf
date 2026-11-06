@@ -69,7 +69,7 @@ resource "github_repository_vulnerability_alerts" "profile" {
 
 resource "github_repository_dependabot_security_updates" "profile" {
   repository = github_repository.profile.id
-  enabled    = true
+  enabled    = false
 }
 
 resource "github_repository" "ottplay_foss" {
@@ -115,7 +115,7 @@ resource "github_repository_vulnerability_alerts" "ottplay_foss" {
 
 resource "github_repository_dependabot_security_updates" "ottplay_foss" {
   repository = github_repository.ottplay_foss.id
-  enabled    = true
+  enabled    = false
 }
 
 # Remote VKB text entry (TV↔phone) — Cloudflare Worker + KV.
@@ -214,7 +214,7 @@ resource "github_repository_vulnerability_alerts" "ottplay_swop" {
 
 resource "github_repository_dependabot_security_updates" "ottplay_swop" {
   repository = github_repository.ottplay_swop.id
-  enabled    = true
+  enabled    = false
 }
 
 # Bot account (californiantiramisu) via org team `bots` needs write so

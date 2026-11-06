@@ -17,6 +17,8 @@ def relevant(path):
         ("security/provider/", ".github/workflows/", "tests/test_secure")
     ) or path in {
         ".github/dependabot.yml",
+        "renovate.json",
+        "requirements-security-tests.in",
         "requirements-security-tests.txt",
         "scripts/build_secure_provider.py",
         "scripts/check_provider_snapshot.py",
