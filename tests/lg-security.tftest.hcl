@@ -36,3 +36,33 @@ run "lg_bot_has_only_repository_write_access" {
     error_message = "The existing bot team needs only repository write access, without an administrator grant."
   }
 }
+
+run "lg_merge_requires_independent_review_and_native_ci" {
+  command = plan
+  assert {
+    condition = (
+      github_repository.ottplay_lg.allow_auto_merge &&
+      github_repository_ruleset.ottplay_lg_main.repository == "ottplay-lg" &&
+      github_repository_ruleset.ottplay_lg_main.enforcement == "active" &&
+      github_repository_ruleset.ottplay_lg_main.target == "branch" &&
+      length(github_repository_ruleset.ottplay_lg_main.bypass_actors) == 0 &&
+      toset(one(one(github_repository_ruleset.ottplay_lg_main.conditions).ref_name).include) == toset(["~DEFAULT_BRANCH"]) &&
+      one(github_repository_ruleset.ottplay_lg_main.rules).deletion &&
+      one(github_repository_ruleset.ottplay_lg_main.rules).non_fast_forward &&
+      one(one(github_repository_ruleset.ottplay_lg_main.rules).pull_request).required_approving_review_count == 1 &&
+      one(one(github_repository_ruleset.ottplay_lg_main.rules).pull_request).dismiss_stale_reviews_on_push &&
+      one(one(github_repository_ruleset.ottplay_lg_main.rules).pull_request).require_last_push_approval &&
+      one(one(github_repository_ruleset.ottplay_lg_main.rules).pull_request).required_review_thread_resolution
+    )
+    error_message = "LG merges must require independent current-head approval and resolved discussions without bypass actors."
+  }
+  assert {
+    condition = (
+      one(one(github_repository_ruleset.ottplay_lg_main.rules).required_status_checks).strict_required_status_checks_policy &&
+      !one(one(github_repository_ruleset.ottplay_lg_main.rules).required_status_checks).do_not_enforce_on_create &&
+      toset([for check in one(one(github_repository_ruleset.ottplay_lg_main.rules).required_status_checks).required_check : check.context]) == toset(["Source contracts", "Native host tests", "CI gate"]) &&
+      alltrue([for check in one(one(github_repository_ruleset.ottplay_lg_main.rules).required_status_checks).required_check : check.integration_id == 15368])
+    )
+    error_message = "Require the real LG workflow contexts from GitHub Actions on an up-to-date branch."
+  }
+}
