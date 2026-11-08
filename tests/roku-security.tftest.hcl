@@ -85,5 +85,6 @@ run "roku_adoption_rejects_another_organization" {
   variables {
     github_organization = "another-organization"
   }
-  expect_failures = [github_repository.ottplay_roku]
+  # Both platform onboarding resources are confined to this organization.
+  expect_failures = [github_repository.ottplay_roku, github_repository.ottplay_lg]
 }
