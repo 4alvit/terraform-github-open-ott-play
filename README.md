@@ -37,6 +37,7 @@ Set these in Terraform Cloud workspace variables (not in git):
 - `ottplay-foss` — IPTV/OTT set-top-box player (main project)
 - `ottplay-core` — public canonical shared core and independent ES5 client
 - `ottplay-android` — public native Android and Android TV application
+- `ottplay-lg` — public native SDL application for LG webOS
 - `outpace-acestream` — public Rust AceStream engine derived from Outpace under AGPL-3.0-or-later
 - `ottplay-swop` — Cloudflare Worker + KV for remote VKB text entry (TV↔phone)
 - `ottplay-web-vitrine` — existing public player vitrine, adopted into canonical state
@@ -49,6 +50,25 @@ Set these in Terraform Cloud workspace variables (not in git):
 `prevent_destroy` protection. Their history, releases and Android signing secrets
 are not recreated or stored in Terraform; signing remains a main-only manual
 GitHub Actions workflow with secrets held separately from the published source.
+
+`lg.tf` creates `ottplay-lg` empty (`auto_init = false`) with no license template,
+so the native client can retain the imported source's GPL license and notices.
+The repository has destruction protection, secret scanning and push protection,
+vulnerability alerts, and `bots` team write access. Dependabot security-update
+PRs are disabled under the organization-wide Renovate policy; the source bootstrap
+must include the appropriate Renovate configuration and verified runner coverage.
+Review a saved full plan containing only the four LG resource creations before
+applying it to the canonical workspace. Investigate unrelated changes first.
+
+After the source and workflows are published, verify the actual successful CI
+contexts and permitted review automation before adding LG's default-branch
+review and CI ruleset. Bind checks to GitHub Actions App ID `15368`, preserve the
+shared organization-owner exception, and reconcile the unsupported extra-approval
+field as described in [public security policy](docs/public-security.md).
+This bootstrap does not claim that those branch protections are already active.
+Read back the public repository, security settings and bot write permission,
+verify private vulnerability reporting separately, and require a fresh full
+Terraform plan with no changes after each apply.
 
 `outpace-acestream` is an independent public repository, created empty so the
 reviewed Outpace history and its AGPL-3.0-or-later notices can be imported intact.

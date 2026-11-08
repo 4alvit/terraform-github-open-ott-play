@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Bootstrap the public native SDL LG webOS repository with preserved source-license provenance, secret protection, vulnerability alerts and bot write access; activate branch CI rules only after workflow qualification.
+
 - Complete the verified Core and Vitrine review rollout: require one current approval, preserve strict CI and organization-owner emergency bypass, and retire their legacy repository-administrator CI exception.
 
 - Update the disclosed local provider to 6.13.0-openssf.3 with x/net 0.62.0 and its compatible transitive modules, addressing GO-2026-6860 and GO-2026-6866. Preserve the complete source-qualified lock graph; existing HCP providers and infrastructure are unchanged.
