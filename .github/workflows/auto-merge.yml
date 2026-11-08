@@ -15,14 +15,14 @@ permissions:
   contents: read
 concurrency:
   group: automerge-${{ github.event.pull_request.number }}${{ ((github.event.action == 'unlabeled' && github.event.label.name == 'automerge') || github.event.action == 'converted_to_draft' || (github.event.action == 'edited' && github.event.changes.base && github.event.pull_request.base.ref != github.event.repository.default_branch)) && format('-withdrawal-{0}', github.run_id) || '' }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   auto-merge:
     permissions:
       contents: read
       pull-requests: write
     if: contains(fromJSON('["4alvit","californiantiramisu","dependabot[bot]","renovate[bot]"]'), github.event.pull_request.user.login)
-    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/auto-merge.yml@efcf835f50579185a6eb76035428ef6074ae1fe0 # main
+    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/auto-merge.yml@dd0bd436fd68c5a297e4949f69ac9448f79b4d69 # main
     with:
       native-auto-merge: true
       required-status-checks: CodeQL
