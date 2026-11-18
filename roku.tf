@@ -1,5 +1,5 @@
 # Adopt the existing public repository after its three required CI contexts
-# have succeeded on main. Keep its current repository preferences unchanged.
+# have succeeded on main. Retire merged PR branches as in other managed repositories.
 resource "github_repository" "ottplay_roku" {
   name         = "ottplay-roku"
   description  = "Native Roku client for user-supplied M3U playlists, with SceneGraph playback and reproducible sideload delivery"
@@ -17,7 +17,7 @@ resource "github_repository" "ottplay_roku" {
   allow_rebase_merge          = true
   allow_auto_merge            = false
   allow_update_branch         = false
-  delete_branch_on_merge      = false
+  delete_branch_on_merge      = true
   web_commit_signoff_required = false
   squash_merge_commit_title   = "COMMIT_OR_PR_TITLE"
   squash_merge_commit_message = "COMMIT_MESSAGES"
