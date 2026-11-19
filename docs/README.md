@@ -9,6 +9,7 @@ policy and validation toolchain that check this source.
 - [Core required-check recovery](core-protection.md) — the desired `core_main` branch protection resource and its required-check routes.
 - [Optional GitHub governance](release-governance.md) — the additive `release-standards.tf` opt-in, its empty defaults and the activation file.
 - [Public software security policy](public-security.md) — the organization-owner bypass policy and the shared admin merge actor it is attached to.
+- [Roku Actions event policy preflight](roku-actions-policy-preflight.md) — check the exact workflows and inherited policy before reviewing the December 2 pilot.
 
 ## Validation toolchain
 
