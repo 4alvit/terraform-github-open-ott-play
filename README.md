@@ -45,6 +45,12 @@ Set these in Terraform Cloud workspace variables (not in git):
 
 `terraform-github-open-ott-play` itself lives under the `4alvit` account and is managed outside this module.
 
+`repository-topics.tf` publishes discovery topics for `ottplay-control-server`,
+`ottplay-core`, `ottplay-web-vitrine` and `ottplay-android` through
+`github_repository_topics`. The resource manages only the topic list, so the
+control server's repository settings stay untouched. Topic names are lowercase
+and hyphenated, matching the existing topics on the other managed repositories.
+
 `native-repositories.tf` adopts the existing core and Android repositories with
 `visibility = "public"` and preserves their repository preferences. Both have
 `prevent_destroy` protection. Their history, releases and Android signing secrets

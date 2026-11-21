@@ -48,7 +48,9 @@ resource "github_repository" "profile" {
   description = "Organization profile, community health files, and logo assets"
   visibility  = "public"
 
-  has_issues      = false
+  # The live profile repository has issues enabled. Keep the declaration equal to
+  # that state so the next apply does not disable it.
+  has_issues      = true
   has_projects    = false
   has_wiki        = false
   has_discussions = false

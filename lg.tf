@@ -55,12 +55,19 @@ resource "github_team_repository" "bots_ottplay_lg" {
 }
 
 # The bot follows the same current-head review and native CI requirements as
-# every other contributor. No bot or administrator bypass is introduced.
+# every other contributor. No bot bypass is introduced; organization owners keep
+# the same permanent branch recovery exception used on the other rulesets.
 resource "github_repository_ruleset" "ottplay_lg_main" {
   name        = "Main branch validation"
   repository  = github_repository.ottplay_lg.name
   target      = "branch"
   enforcement = "active"
+
+  bypass_actors {
+    actor_id    = local.owner_emergency_merge_actor.actor_id
+    actor_type  = local.owner_emergency_merge_actor.actor_type
+    bypass_mode = local.owner_emergency_merge_actor.bypass_mode
+  }
 
   conditions {
     ref_name {
