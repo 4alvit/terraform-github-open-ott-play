@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add discovery topics to `ottplay-control-server`, `ottplay-core`, `ottplay-web-vitrine` and `ottplay-android` through dedicated `github_repository_topics` resources, so the projects can be found by their language, platform and playback use case.
+
+- Reconcile two live differences: keep issues enabled on the organization profile repository and declare the permanent organization-owner bypass that the LG native ruleset already has.
+
 - Bootstrap the public native SDL LG webOS repository with preserved source-license provenance, secret protection, vulnerability alerts and bot write access; activate branch CI rules only after workflow qualification.
 
 - Complete the verified Core and Vitrine review rollout: require one current approval, preserve strict CI and organization-owner emergency bypass, and retire their legacy repository-administrator CI exception.

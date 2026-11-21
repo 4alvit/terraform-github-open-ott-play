@@ -45,7 +45,8 @@ run "lg_merge_requires_independent_review_and_native_ci" {
       github_repository_ruleset.ottplay_lg_main.repository == "ottplay-lg" &&
       github_repository_ruleset.ottplay_lg_main.enforcement == "active" &&
       github_repository_ruleset.ottplay_lg_main.target == "branch" &&
-      length(github_repository_ruleset.ottplay_lg_main.bypass_actors) == 0 &&
+      length([for actor in github_repository_ruleset.ottplay_lg_main.bypass_actors : actor if actor.actor_type == local.owner_emergency_merge_actor.actor_type]) == 1 &&
+      length([for actor in github_repository_ruleset.ottplay_lg_main.bypass_actors : actor if actor.actor_type != local.owner_emergency_merge_actor.actor_type]) == 0 &&
       toset(one(one(github_repository_ruleset.ottplay_lg_main.conditions).ref_name).include) == toset(["~DEFAULT_BRANCH"]) &&
       one(github_repository_ruleset.ottplay_lg_main.rules).deletion &&
       one(github_repository_ruleset.ottplay_lg_main.rules).non_fast_forward &&
@@ -54,7 +55,7 @@ run "lg_merge_requires_independent_review_and_native_ci" {
       one(one(github_repository_ruleset.ottplay_lg_main.rules).pull_request).require_last_push_approval &&
       one(one(github_repository_ruleset.ottplay_lg_main.rules).pull_request).required_review_thread_resolution
     )
-    error_message = "LG merges must require independent current-head approval and resolved discussions without bypass actors."
+    error_message = "LG merges must require independent current-head approval and resolved discussions, with only the permanent organization-owner exception."
   }
   assert {
     condition = (
