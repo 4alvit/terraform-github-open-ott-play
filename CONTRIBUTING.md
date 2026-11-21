@@ -33,6 +33,25 @@ Test negative cases, especially private/archived repository exclusions, bypass
 permissions and release activation. Address linter and provider warnings instead
 of suppressing a check globally. Keep formatting deterministic.
 
+## Signed commits
+
+Managed branch rules require signed commits, and GitHub marks a signature
+verified only when the signing key belongs to the account of the commit
+author's verified email address. This repository signs with the SSH key named by
+`user.signingkey` under `gpg.format = ssh`. Keep `user.email` set to a verified
+address of that key's account; an address that belongs to a different account
+produces an `unknown_key` signature, which the required-signatures rule rejects
+even though the key itself is registered:
+
+```sh
+git config --local user.email "USER_ID+USER_LOGIN@users.noreply.github.com"
+git log -1 --format='%G? %an <%ae>'
+```
+
+`G` confirms that the local signature verifies against the configured key.
+GitHub shows the authoritative result on the commit and pull request page; a
+squash or rebase merge performed by GitHub is signed by GitHub itself.
+
 ## Infrastructure review
 
 Document the target owner, resource addresses, existing remote IDs, expected
